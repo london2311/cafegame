@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>宇宙一のカフェ ― カフェ・ルーレット</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Yusei+Magic&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --board:#22302a;
+  --board-2:#1b2621;
+  --frame:#6e4b2f;
+  --chalk:#ece8dd;
+  --chalk-dim:#a9b3a8;
+  --chalk-yellow:#f1cf6a;
+  --chalk-pink:#ee9aa5;
+  --chalk-mint:#9fd8c0;
+  --brass:#d9a441;
+  --espresso:#2a1a0e;
+  --jp:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;
+  --chalkfont:"Yusei Magic","Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+  --display:"Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--espresso);color:var(--chalk);font-family:var(--jp)}
+body{overflow:hidden}
+#app{display:grid;grid-template-columns:minmax(340px,410px) 1fr;height:100vh;height:100dvh;
+  padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
+
+/* ---------- 黒板パネル ---------- */
+#panel{order:0;position:relative;overflow-y:auto;overflow-x:hidden;
+  background:
+    radial-gradient(120% 60% at 20% 0%,rgba(255,255,255,.06),transparent 60%),
+    radial-gradient(90% 50% at 90% 100%,rgba(255,255,255,.04),transparent 60%),
+    var(--board);
+  border:12px solid var(--frame);
+  border-image:linear-gradient(135deg,#7d5634,#5a3a22 40%,#8a6040 70%,#5a3a22) 1;
+  padding:22px 22px 28px}
+#panel h1{font-family:var(--display);font-weight:400;font-size:30px;line-height:1.15;margin:0 0 6px;
+  color:var(--chalk);letter-spacing:.02em;text-shadow:0 0 1px rgba(255,255,255,.5)}
+#panel h1 small{display:block;font-family:var(--chalkfont);font-size:15px;color:var(--chalk-yellow);margin-top:6px;letter-spacing:.04em}
+.lead{font-family:var(--chalkfont);font-size:14px;line-height:1.75;color:var(--chalk-dim);margin:10px 0 18px}
+
+#slots{list-style:none;margin:0 0 18px;padding:0;border-top:2px dashed rgba(236,232,221,.25)}
+#slots li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:10px;
+  padding:10px 2px;border-bottom:2px dashed rgba(236,232,221,.25);min-height:62px}
+#slots .ic{font-size:22px;text-align:center}
+#slots .cat{display:block;font-family:var(--chalkfont);font-size:13px;color:var(--chalk-yellow)}
+#slots .nm{display:block;font-family:var(--chalkfont);font-size:18px;line-height:1.3;color:var(--chalk);word-break:break-all}
+#slots .tg{display:inline-block;margin-left:6px;font-size:12px;color:var(--chalk-pink);border:1.5px solid var(--chalk-pink);
+  border-radius:12px;padding:0 7px;vertical-align:2px;font-family:var(--chalkfont)}
+#slots .pt{font-family:var(--display);font-size:20px;color:var(--chalk-mint);min-width:56px;text-align:right}
+#slots .pt.neg{color:var(--chalk-pink)}
+#slots li.spin .nm{color:var(--chalk-dim);filter:blur(.4px)}
+#slots li.spin{background:rgba(241,207,106,.07)}
+#slots li.set .nm{animation:chalkin .35s ease-out}
+@keyframes chalkin{from{opacity:.2;transform:translateX(-4px)}to{opacity:1;transform:none}}
+
+#go{display:block;width:100%;font-family:var(--display);font-size:22px;letter-spacing:.08em;
+  color:var(--espresso);background:linear-gradient(#e8b957,#c98f2e);border:0;border-radius:10px;
+  padding:16px 10px;cursor:pointer;box-shadow:0 4px 0 #8a5d17,0 8px 18px rgba(0,0,0,.35);
+  transition:transform .08s,box-shadow .08s}
+#go:active{transform:translateY(3px);box-shadow:0 1px 0 #8a5d17,0 4px 10px rgba(0,0,0,.35)}
+#go:disabled{filter:grayscale(.5) brightness(.85);cursor:wait}
+#go:focus-visible,summary:focus-visible{outline:3px solid var(--chalk-mint);outline-offset:3px}
+
+#result{margin-top:22px;font-family:var(--chalkfont)}
+#result[hidden]{display:none}
+.total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:2px solid rgba(236,232,221,.3);padding-bottom:8px}
+.total b{font-family:var(--display);font-weight:400;font-size:34px;color:var(--chalk)}
+.total span{font-size:14px;color:var(--chalk-dim)}
+.sub{font-size:13px;color:var(--chalk-dim);margin:6px 0 14px}
+.blk{margin:14px 0}
+.blk h3{font-size:15px;font-weight:400;color:var(--chalk-yellow);margin:0 0 6px}
+.blk ul{list-style:none;margin:0;padding:0}
+.blk li{display:flex;justify-content:space-between;gap:10px;font-size:15px;line-height:1.5;padding:3px 0}
+.blk li .p{color:var(--chalk-mint);white-space:nowrap}
+.blk li .p.neg{color:var(--chalk-pink)}
+.blk p{margin:0;font-size:15px;line-height:1.7}
+.record{font-size:14px;color:var(--chalk-dim);margin-top:14px}
+
+details{margin-top:22px;font-family:var(--chalkfont)}
+summary{cursor:pointer;color:var(--chalk-yellow);font-size:15px}
+#ranklist{list-style:none;margin:10px 0 0;padding:0;columns:2;column-gap:14px;font-size:13px;line-height:1.7}
+#ranklist li{color:rgba(236,232,221,.35);break-inside:avoid}
+#ranklist li.got{color:var(--chalk)}
+#ranklist li.now{color:var(--chalk-yellow)}
+#ranklist li b{display:inline-block;min-width:2.3em;font-weight:400}
+
+/* ---------- 3Dステージ ---------- */
+#stage{order:1;position:relative;overflow:hidden;background:#9ccfee}
+#c{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#c:active{cursor:grabbing}
+#banner{position:absolute;left:0;right:0;top:14px;text-align:center;pointer-events:none;padding:0 12px}
+#banner[hidden]{display:none}
+#banner .rk{font-family:var(--display);line-height:1;color:#fff;
+  -webkit-text-stroke:2px var(--tier,#2a1a0e);paint-order:stroke fill;text-shadow:0 4px 0 var(--tier,#2a1a0e),0 8px 24px rgba(0,0,0,.35)}
+#banner .rk b{font-weight:400;font-size:clamp(54px,9vw,96px)}
+#banner .rk small{font-size:clamp(18px,2.4vw,26px);margin-left:4px}
+#banner h2{display:inline-block;margin:8px 0 0;font-family:var(--display);font-weight:400;font-size:clamp(20px,3vw,32px);
+  color:#fff;background:var(--tier,#2a1a0e);padding:6px 16px 8px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+#banner.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+#toasts{position:absolute;left:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none;max-width:calc(100% - 24px)}
+.toast{font-family:var(--jp);font-weight:700;font-size:14px;color:#fff;background:rgba(20,18,30,.78);
+  border-left:4px solid var(--c,#d9a441);padding:7px 12px;border-radius:4px;animation:tin .35s ease-out;backdrop-filter:blur(4px)}
+.toast.out{opacity:0;transition:opacity .6s}
+@keyframes tin{from{transform:translateX(-14px);opacity:0}to{transform:none;opacity:1}}
+#hint{position:absolute;right:12px;bottom:12px;font-size:12px;color:rgba(255,255,255,.85);background:rgba(0,0,0,.28);
+  padding:4px 10px;border-radius:12px;pointer-events:none}
+#err{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:20px;color:#fff;background:#2a1a0e;font-size:15px;line-height:1.7}
+
+@media (max-width:820px){
+  #app{grid-template-columns:1fr;grid-template-rows:48vh 1fr;grid-template-rows:48dvh 1fr}
+  #stage{order:0}
+  #panel{order:1;border-width:8px;padding:16px 16px 26px}
+  #panel h1{font-size:24px}
+  #banner{top:8px}
+  #hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  #banner.pop,.toast,#slots li.set .nm{animation:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside id="panel">
+    <h1>カフェ・ルーレット<small>今日のお店は、どこまで行ける？</small></h1>
+    <p class="lead">コーヒー・サイドメニュー・サービス・清潔さ・立地・内装が1秒ずつ決まります。各100種類。合計点と組み合わせで、宇宙一から客ゼロまで100段階の格付けが決まります。</p>
+    <ol id="slots"></ol>
+    <button id="go" type="button">開店する</button>
+    <section id="result" hidden aria-live="polite"></section>
+    <details>
+      <summary>格付け一覧（100段階）</summary>
+      <ol id="ranklist"></ol>
+    </details>
+  </aside>
+  <section id="stage">
+    <canvas id="c" aria-label="カフェの3D映像"></canvas>
+    <div id="banner" hidden><div class="rk"><b id="bRank">1</b><small>位 / 100</small></div><h2 id="bTitle"></h2></div>
+    <div id="toasts"></div>
+    <div id="hint">ドラッグで視点を回せます</div>
+    <div id="err">3D表示を読み込めませんでした。ネットに接続した状態でページを再読み込みしてください。</div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+/* ==========================================================
+   データ：各カテゴリ100項目（下ほど高得点）。#記号はテーマ
+   u=宇宙 w=和 f=パリ i=イタリア s=南国 m=森 r=昭和レトロ k=王室 n=猫 a=近未来
+   ========================================================== */
+const TAGS={
+  u:{name:"宇宙",combo:"コズミック・カフェ"},
+  w:{name:"和",combo:"和の極み"},
+  f:{name:"パリ",combo:"パリの午後"},
+  i:{name:"イタリア",combo:"イタリアーノ"},
+  s:{name:"南国",combo:"南国の潮風"},
+  m:{name:"森",combo:"森の隠れ家"},
+  r:{name:"昭和レトロ",combo:"純喫茶の記憶"},
+  k:{name:"王室",combo:"ロイヤル・サロン"},
+  n:{name:"猫",combo:"猫の楽園"},
+  a:{name:"近未来",combo:"近未来カフェ"}
+};
+
+const CATS=[
+{key:"coffee",label:"コーヒー",icon:"☕",raw:`泥水のようなコーヒー|三日前の出がらし|焦げた麦茶|ぬるいお湯|砂糖水|賞味期限切れの缶コーヒー|薄すぎるインスタント|粉が溶け残ったインスタント|自販機の激甘コーヒー|煮詰まったドリップ|
+水出し失敗作|紙パックのコーヒー牛乳#r|ぬるい缶コーヒー|インスタントコーヒー|たんぽぽコーヒー#m|ドリップバッグ|ブレンドコーヒー（普通）|アメリカン|アイスコーヒー|昭和のサイフォンコーヒー#r|
+喫茶店のブレンド#r|コーヒーフロート#r|ほうじ茶ラテ#w|麦茶ラテ#w|カフェオレ#f|カフェラテ|カプチーノ#i|エスプレッソ#i|マキアート#i|モカ|
+キャラメルマキアート|ヘーゼルナッツラテ|バニララテ|抹茶ラテ#w|豆乳ラテ|アインシュペナー|ウインナーコーヒー#r|カフェ・ボンボン|アフォガート#i|コールドブリュー|
+ナイトロコーヒー#a|ダッチコーヒー|ハーブ香るコーヒー#m|森のキノココーヒー#m|猫ラテアート#n|肉球ラテ#n|ハワイ・コナ#s|南国ココナッツラテ#s|トロピカル水出し#s|キリマンジャロ|
+モカ・マタリ|ブラジル・サントス|コロンビア・スプレモ|グアテマラ・アンティグア|マンデリン|ケニアAA|エチオピア・イルガチェフェ|トラジャ|ブルーマウンテン|パリ風カフェ・クレーム#f|
+セーヌ河畔のノワゼット#f|ローマ式リストレット#i|ナポリの深煎り#i|京都の水出し珈琲#w|玉露ブレンド珈琲#w|高原の森の焙煎#m|深山の湧き水ドリップ#m|純喫茶の秘伝ブレンド#r|ネル・ドリップの極み#r|AIが焙煎した一杯#a|
+量子抽出コーヒー#a|ホログラム・ラテ#a|ゲイシャ種|パナマ・ゲイシャ|コピ・ルアク|セントヘレナ島の珈琲#s|ハワイ島の火山豆#s|王室御用達ブレンド#k|黄金のエスプレッソ#k|金箔ラテ#k|
+ダイヤモンド・ドリップ#k|百年熟成の珈琲|伝説の焙煎士の一杯|世界大会優勝の一杯|猫神様の祝福ラテ#n|招き猫のブレンド#n|月面焙煎コーヒー#u|火星の赤い豆#u|無重力エスプレッソ#u|星屑カプチーノ#u|
+土星の輪ラテ#u|銀河ブレンド#u|彗星のしずく#u|太陽の最初の光で焙煎#u|神々の朝の一杯|天界の珈琲|時を超えるエスプレッソ|宇宙誕生の香り#u|ビッグバン・ブレンド#u|究極の一杯「永遠」`},
+{key:"side",label:"サイドメニュー",icon:"🍰",raw:`カビたパン|石のようなクッキー|溶けたアイス|生焼けのホットケーキ|しなびたレタス|湿気たポテチ|袋のままの食パン|塩辛すぎるトースト|凍ったままのピザ|パサパサのマフィン|
+コンビニのおにぎり|ゆで卵|バタートースト|ピーナッツ小袋|柿の種|ビスケット|チーズトースト|シナモントースト|ホットドッグ|ミックスサンド|
+ナポリタン#r|固めのプリン#r|クリームソーダ#r|ホットケーキ#r|たまごサンド#r|オムライス#r|ピザトースト#r|あんバタートースト#w|みたらし団子#w|わらび餅#w|
+どら焼き#w|羊羹#w|抹茶パフェ#w|カツサンド|ベーグル|スコーン|チーズケーキ|ガトーショコラ|モンブラン|フルーツタルト|
+シフォンケーキ|パンケーキ|フレンチトースト#f|クロワッサン#f|マカロン#f|クレープ#f|キッシュ#f|ミルフィーユ#f|ティラミス#i|パニーニ#i|
+ジェラート#i|カンノーリ#i|マリトッツォ#i|ビスコッティ#i|マラサダ#s|ハワイアン・パンケーキ#s|マンゴーかき氷#s|ロコモコ#s|アサイーボウル#s|森のきのこキッシュ#m|
+ハーブのスコーン#m|野いちごタルト#m|はちみつと木の実のパン#m|猫の顔パン#n|肉球マカロン#n|にゃんこプリン#n|3Dプリント・ケーキ#a|ロボット製ドーナツ#a|ホログラム・パフェ#a|分子ガストロノミーのデザート#a|
+京都の老舗の和菓子#w|茶屋の生菓子#w|パリの老舗マカロン#f|ローマの本場ティラミス#i|純喫茶の伝説のプリン#r|季節のフルーツパフェ|桃まるごとタルト|メロンまるごとパフェ|A5和牛サンド|トリュフのトースト|
+キャビアのカナッペ#k|金箔ショコラ#k|宮廷のミルフィーユ#k|ロイヤル・アフタヌーンティー#k|黄金のパンケーキ#k|星形マカロン#u|月面仕様の月見団子#u|流れ星のゼリー#u|火星の赤いタルト#u|無重力シュークリーム#u|
+天の川パフェ#u|惑星グミ#u|宇宙食フルコース#u|天使のシフォン|神話の果実タルト|妖精が焼いたクッキー|伝説のパティシエ最後の作品|銀河クレープ#u|星座のアフタヌーンティー#u|世界を救うケーキ`},
+{key:"service",label:"サービス",icon:"🤵",raw:`店員が寝ている|注文を無視される|舌打ちされる|釣り銭をごまかされる|違う料理が出る|1時間待たされる|店員が常に電話中|無言で置かれる|レジが見つからない|説明なしのセルフ|
+愛想がない|声が小さい|マニュアル通り|セルフサービス|券売機方式|そっけない会釈|普通の接客|笑顔の接客|水のおかわりが自動|おしぼりサービス#r|
+マスターの世間話#r|常連を名前で呼ぶ#r|新聞・雑誌読み放題#r|モーニングサービス#r|丁寧な説明|コーヒーおかわり無料|ポイントカード|雨の日の傘貸し|ブランケット貸し出し|充電器貸し出し|
+誕生日サプライズ|手書きのメッセージ|子ども連れ歓迎|ペット同伴OK|看板猫がお出迎え#n|猫スタッフ3匹#n|猫が膝に乗ってくれる#n|おもてなしの心#w|着物のスタッフ#w|お茶の作法の案内#w|
+三つ指ついてお出迎え#w|ギャルソンの給仕#f|シャンソンの生演奏#f|フランス語の挨拶#f|陽気なイタリア語接客#i|目の前でバリスタが抽出#i|オペラを歌う店員#i|アロハシャツのスタッフ#s|フラダンスショー#s|レイのプレゼント#s|
+森のガイドツアー付き#m|ハーブ摘み体験#m|焚き火を囲む接客#m|配膳ロボット#a|AI店員の完璧対応#a|ドローンでお届け#a|VRで産地見学#a|バリスタ世界チャンピオン|コーヒー鑑定士が常駐|客の好みを完全記憶|
+一人ひとりに専属スタッフ|忘れ物を家まで届ける|悩み相談にのってくれる|天気で変わるおすすめ|気分を読んで一杯を提案|シェフが席まで挨拶|マジシャンの手品付き|生ピアノ演奏|弦楽四重奏|オーケストラ生演奏|
+執事がお出迎え#k|メイド長の完璧な給仕#k|レッドカーペットで入店#k|王族式の作法#k|伯爵自ら注ぐ一杯#k|リムジン送迎#k|ヘリで送迎|自家用ジェット手配|世界中どこでも出前|一生涯無料パス|
+客の夢をかなえる|心を癒やすひと言|人生相談で運命が好転|来るたびに幸運が訪れる|宇宙服での給仕#u|無重力体験サービス#u|ロケットで出前#u|星の名前をプレゼント#u|月の土地をプレゼント#u|UFOで送迎#u|
+異星語対応#u|テレパシーで注文受付#u|時間を巻き戻すサービス|未来の自分と相席|天使が給仕|神様がマスター|客の願いが全部かなう|宇宙の真理を語る店主#u|銀河連邦公認のおもてなし#u|魂が洗われるおもてなし`},
+{key:"clean",label:"清潔さ",icon:"✨",raw:`ゴミ屋敷|ゴキブリが行進|ネズミの運動会|床がベタベタ|カップに口紅の跡|テーブルに食べかす|トイレが故障中|謎の悪臭|灰皿が山盛り|窓が曇って見えない|
+埃が積もった棚|エアコンがカビ臭い|ちょっと油っぽい|床がきしむ|たまに掃除|週に一度の掃除|まあまあ清潔|普通に清潔|毎日掃除|使い込まれた木のテーブル#r|
+年季の入ったレトロな床#r|磨かれた喫茶カウンター#r|真鍮が光るレジ#r|おしぼりが真っ白|窓ピカピカ|床ツヤツヤ|トイレが清潔|除菌が徹底|空気清浄機完備|観葉植物で空気さわやか#m|
+森の香りの店内#m|ヒノキの香りの床#m|苔がきれいな庭#m|清流が流れる店内#m|畳が青々#w|打ち水の玄関#w|塵ひとつない茶室#w|磨き抜かれた縁側#w|猫の毛ひとつ落ちていない#n|猫用の清潔スペース#n|
+猫が毎朝点検#n|パリのアパルトマン級#f|石畳のようにピカピカ#f|ヴェネツィアングラスが輝く#i|大理石のカウンター#k|白砂のように清潔#s|潮風で爽やか#s|貝殻が磨かれた床#s|プロの清掃業者が毎日|ホテル並みの清潔さ|
+お皿が鏡のよう|カップが毎回新品|スタッフの手袋も真っ白|空気に塵ゼロ|靴裏まで除菌|床で寝られる清潔さ|アロマで香る店内|ハーブで浄化された空気#m|マイナスイオンたっぷり#m|清掃ロボット常駐#a|
+ナノ除菌コーティング#a|UV殺菌ゲート#a|自己修復する床#a|空気を分子レベルで浄化#a|手術室並みの無菌|無菌クリーンルーム|宮殿の磨かれた床#k|黄金のドアノブが輝く#k|シャンデリアに埃ゼロ#k|王宮級の清掃チーム#k|
+ダイヤのように輝く窓#k|神社のような清浄さ#w|禅寺の庭の静けさ#w|雪山の空気の透明度#m|南の島の海の透明度#s|宇宙ステーション級の清浄#u|真空パックのような清潔#u|月面の無菌ドーム#u|星のきらめく床#u|流星で掃除された空#u|
+汚れが存在できない店|光で満たされる空間|空気が澄みきっている|心まで洗われる店内|一歩入ると体が軽くなる|天使が毎朝掃除|聖域の清らかさ|滝の音で清められる#m|神聖な森の空気#m|伊勢の森の清浄さ#w|
+天界の清らかさ|銀河の塵も払う結界#u|宇宙の清浄フィールド#u|次元を超えた清潔さ|光の結界で守られた店|分子まで輝く清浄さ|汚れの概念がない|星々に祝福された空間#u|宇宙創造時の純粋さ#u|究極の清浄空間`},
+{key:"place",label:"立地",icon:"📍",raw:`ゴミ処理場の隣|地図に載っていない路地|道のない崖の上|樹海の奥深く|高速道路の中央分離帯|立入禁止区域|シャッター街|墓地の真ん中|雑居ビルの地下5階|駅から徒歩2時間|
+工業地帯の片隅|無人駅の前|田んぼの真ん中|住宅街の奥|雑居ビルの3階|郊外の国道沿い|駐車場なしの路地|普通の商店街|オフィス街の裏手|昭和の商店街#r|
+古い映画館の隣#r|レトロな市場の中#r|路面電車の停留所前#r|大学の近く|駅前ロータリー|公園の入口|ショッピングモール内|駅ビルの中|大通り沿い|川沿いの桜並木|
+高原の別荘地#m|湖のほとり#m|森の中のログハウス#m|山頂の展望台#m|花畑の真ん中#m|京都の町家#w|古都の茶屋街#w|城下町の一角#w|寺の境内#w|温泉街#w|
+海辺の小道#s|ビーチの目の前#s|南国の島#s|灯台のある岬#s|サンゴ礁の見える桟橋#s|パリの路地裏#f|セーヌ川のほとり#f|モンマルトルの丘#f|シャンゼリゼ通り#f|ローマの広場#i|
+ヴェネツィアの運河沿い#i|ナポリの港#i|フィレンツェの大聖堂前#i|猫島#n|猫の集まる神社の前#n|猫だらけの路地#n|空港のラウンジ|超高層ビルの最上階|大都市の一等地|世界的観光地の目の前|
+世界遺産の真横|国際会議場の中|サイバー都市の中心#a|リニア駅直結#a|AI研究所の中#a|空飛ぶ車の発着場#a|未来都市の空中庭園#a|豪華客船のデッキ|走る豪華列車の中|気球のゴンドラ|
+宮殿の庭園#k|お城の最上階#k|王族の離宮#k|大富豪の島#k|黄金の都#k|オーロラが見える丘|絶景の山の頂|雲の上のテラス|虹のふもと|秘境の滝の裏|
+伝説の森の奥#m|竜宮城#s|天空の城|神々の住む山|成層圏の空中カフェ#u|宇宙エレベーターの中腹#u|国際宇宙ステーション#u|月面基地#u|月の裏側#u|火星のオリンポス山#u|
+土星の輪の上#u|木星の衛星エウロパ#u|小惑星帯の休憩所#u|天の川のほとり#u|アンドロメダ銀河の入口#u|ブラックホールの縁#u|銀河系の中心#u|宇宙の果て#u|異次元の交差点|宇宙の中心`},
+{key:"mood",label:"内装・雰囲気",icon:"🛋",raw:`廃墟そのもの|蛍光灯が点滅|壁にひび割れ|雨漏りしている|パイプ椅子だけ|段ボールのテーブル|BGMが工事の音|古いまま放置|窓が一つもない|殺風景|
+暗い照明|ちょっと狭い|普通の内装|シンプルな白い壁|パイン材の家具|カウンター席のみ|ソファ席あり|観葉植物あり|ジャズが流れる|レコードが流れる#r|
+ネオン管の看板#r|赤いビロードの椅子#r|黒電話のある純喫茶#r|ステンドグラスの窓#r|本棚いっぱいの店内|暖炉のある部屋|ハンモック席|屋上テラス|吹き抜けの天井|アンティーク家具|
+ボタニカル空間#m|木漏れ日のテラス#m|ツリーハウス席#m|苔庭の見える窓#m|焚き火ラウンジ#m|畳の座敷#w|枯山水の庭#w|障子ごしの光#w|囲炉裏のある部屋#w|茶室のにじり口#w|
+猫のキャットウォーク#n|肉球クッション#n|猫が主役のインテリア#n|猫の絵画ギャラリー#n|パリのビストロ風#f|アール・ヌーヴォーの装飾#f|シャンソンが似合う店内#f|ヴェネツィアンマスクの壁#i|イタリアの田舎家風#i|ルネサンスの壁画#i|
+ハワイアン・リゾート風#s|海が見える大窓#s|ヤシの木のテラス#s|砂浜に足をつける席#s|水槽に囲まれた店内#s|デザイナーズ家具|有名建築家の設計|美術館のような空間|プロジェクションマッピング#a|ホログラムの装飾#a|
+サイバーパンクのネオン#a|発光するフロア#a|VR空間と融合#a|重力を感じない椅子#a|天井いっぱいの星空#u|惑星の模型が浮かぶ#u|宇宙船のコックピット風#u|天井がプラネタリウム#u|シャンデリアの大広間#k|大理石の宮殿風#k|
+金の装飾の間#k|王座のような椅子#k|鏡の間のような大広間#k|天蓋付きのソファ#k|滝が流れる壁|オーロラの天井|雲の中のような空間|虹色の光に包まれる|花が咲き続ける壁#m|精霊の森の再現#m|
+竜宮城の大広間#s|天守閣の間#w|金閣のような輝き#w|無重力ラウンジ#u|ガラス越しに地球が見える#u|流星群が降る窓#u|土星が見える展望室#u|銀河を見渡すドーム#u|星雲の中のソファ#u|天空の神殿|
+光でできた部屋|時間が止まる空間|夢の中のような店|心が震える美しさ|天国のような空間|神話の世界そのもの|超新星のきらめき#u|宇宙の神秘の間#u|銀河の心臓部のホール#u|至高の美の殿堂`}
+];
+
+function ptsOf(i){ return Math.round(i*1.2 - 20 + ((i*37)%7) - 3); }
+CATS.forEach(c=>{
+  c.items=c.raw.split("|").map(s=>s.trim()).filter(Boolean).map((s,i)=>{
+    const [name,tag]=s.split("#");
+    return {name,tag:tag||null,idx:i,pts:ptsOf(i),cat:c.key};
+  });
+});
+
+const RANKS=["宇宙一のカフェ","銀河系No.1カフェ","天の川に名を轟かす店","太陽系一のカフェ","月面にも支店がある店","異星人の聖地","人類の至宝カフェ","世界一のカフェ","世界遺産候補の喫茶","各国元首御用達",
+"王家の紋章入りカフェ","伝説のバリスタがいる店","世界の名店ベスト10","三つ星カフェ","大陸を代表する店","世界中から行列","海外ガイドブックの表紙","日本一のカフェ","総理が通う喫茶","国民的カフェ",
+"全国区の超有名店","予約三年待ち","芸能人の隠れ家","ドラマのロケ地","行列が駅まで続く店","SNSで大バズり中","地方の名物カフェ","観光バスが止まる店","県内ナンバーワン","雑誌の常連店",
+"ご当地の誇り","週末は満席必至","グルメサイト高評価","地元民の自慢","常連で賑わう人気店","テレビで紹介された店","口コミ評判の店","デートの定番","行って損なしの店","ランチどきは行列",
+"街いちばんの喫茶","ほどよく賑わう店","通いたくなる店","居心地のいい店","感じのいいカフェ","近所で評判の店","また来てもいい店","そこそこ繁盛","堅実な喫茶店","ごく普通のカフェ",
+"可もなく不可もなく","待ち合わせに便利な店","平日は空いている店","知る人ぞ知る店","たまに混む店","惜しいカフェ","伸びしろのある店","常連さん数名","空席が目立つ店","静かすぎる喫茶",
+"雨宿りの客だけ","迷ったら入る店","地図アプリで星2.8","店主の知り合いが来る店","閑古鳥の鳴く気配","閑古鳥が鳴く店","ほぼ貸し切り状態","家賃が心配な店","常連が一人だけ","通り過ぎられる店",
+"看板が読めない店","地元でも知られていない","開いているのか不明","経営会議が必要","ワンコインでも来ない","口コミで酷評","店の前を猫が避ける","保健所がそっと来る","ゴーストタウンの喫茶","客より店員が多い",
+"店主がひとりで飲んでいる","蜘蛛の巣が張る店","伝説の不人気店","地図から消えかけ","夜逃げ寸前","カラスだけが常連","風が吹き抜ける店","誰も覚えていない店","廃墟マニアが来る店","閉店セール常設",
+"砂ぼこりの舞う店","心霊スポット扱い","郵便物すら届かない","ネズミも出ていった","虚無のカフェ","時が止まった店","異次元に消えそうな店","この世の果ての喫茶","ほぼ存在しない店","客が一人も来ないカフェ"];
+
+/* ---------------- 採点 ---------------- */
+const THEME_BONUS=[0,0,20,50,100,170,260];
+function evaluate(picks){
+  const base=picks.reduce((a,p)=>a+p.pts,0);
+  const combos=[];
+  const counts={};
+  picks.forEach(p=>{ if(p.tag) counts[p.tag]=(counts[p.tag]||0)+1; });
+  Object.keys(counts).forEach(t=>{
+    const n=counts[t];
+    if(n>=2) combos.push({name:`${TAGS[t].combo}（${TAGS[t].name}×${n}）`,pts:THEME_BONUS[n]});
+  });
+  const ix=picks.map(p=>p.idx);
+  const [co,si,se,cl,pl,mo]=ix;
+  if(ix.every(i=>i>=80)) combos.push({name:"全要素が一流",pts:80});
+  if(co>=70&&si>=70) combos.push({name:"最高のペアリング",pts:30});
+  if(co>=90&&ix.slice(1).every(i=>i<35)) combos.push({name:"味だけは本物の隠れた名店",pts:70});
+  if(pl<10&&co>=85) combos.push({name:"秘境の名店",pts:40});
+  if(se>=85&&co<20) combos.push({name:"店主の人柄でもっている店",pts:35});
+  if(cl>=85&&mo>=85) combos.push({name:"息をのむ美空間",pts:30});
+  if(pl>=80&&cl<20) combos.push({name:"一等地なのに不潔",pts:-60});
+  if(mo>=80&&cl<15) combos.push({name:"豪華なのに埃まみれ",pts:-40});
+  if(se<10&&cl<10) combos.push({name:"二度と来たくない店",pts:-30});
+  if(ix.every(i=>i<15)) combos.push({name:"伝説の廃墟カフェ",pts:-50});
+  if(new Set(ix.map(i=>i%10)).size===1) combos.push({name:"奇跡のぞろ目",pts:77});
+  const bonus=combos.reduce((a,c)=>a+c.pts,0);
+  const total=base+bonus;
+  const p=1/(1+Math.exp(-(total-250)/62));
+  const rank=Math.max(1,Math.min(100,100-Math.floor(p*100)));
+  return {picks,base,bonus,total,combos,counts,rank};
+}
+function guestsPerDay(rank){ return rank===100?0:Math.round(3*Math.pow(1.085,100-rank)); }
+function tierColor(rank){
+  if(rank<=3) return "#7a2bb8";
+  if(rank<=10) return "#b8860b";
+  if(rank<=30) return "#c2412d";
+  if(rank<=60) return "#2e6b57";
+  if(rank<=85) return "#55606b";
+  return "#3a3a3a";
+}
+
+/* ---------------- UI ---------------- */
+const $=s=>document.querySelector(s);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const reduceMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const slotsEl=$("#slots");
+CATS.forEach(c=>{
+  const li=document.createElement("li");
+  li.innerHTML=`<span class="ic" aria-hidden="true">${c.icon}</span><span><span class="cat">${c.label}</span><span class="nm">―</span></span><span class="pt"></span>`;
+  c.li=li; slotsEl.appendChild(li);
+});
+
+const store={
+  get(){ try{ return JSON.parse(localStorage.getItem("cafe-roulette")||"{}"); }catch(e){ return {}; } },
+  set(v){ try{ localStorage.setItem("cafe-roulette",JSON.stringify(v)); }catch(e){} }
+};
+function renderRankList(current){
+  const st=store.get(); const got=new Set(st.got||[]);
+  $("#ranklist").innerHTML=RANKS.map((t,i)=>{
+    const r=i+1; const cls=r===current?"now":got.has(r)?"got":"";
+    return `<li class="${cls}"><b>${r}位</b>${got.has(r)||r===current?t:"？？？"}</li>`;
+  }).join("");
+}
+renderRankList();
+
+function toast(text,color){
+  const box=$("#toasts");
+  const d=document.createElement("div");
+  d.className="toast"; d.textContent=text; d.style.setProperty("--c",color||"#d9a441");
+  box.appendChild(d);
+  while(box.children.length>5) box.removeChild(box.firstChild);
+  setTimeout(()=>d.classList.add("out"),3600);
+  setTimeout(()=>d.remove(),4300);
+}
+
+let running=false;
+$("#go").addEventListener("click",openShop);
+
+async function openShop(){
+  if(running) return;
+  running=true;
+  const btn=$("#go");
+  btn.disabled=true; btn.textContent="抽選中…";
+  $("#result").hidden=true;
+  $("#banner").hidden=true;
+  $("#toasts").innerHTML="";
+  CATS.forEach(c=>{ c.li.classList.remove("set","spin"); c.li.querySelector(".nm").textContent="―"; const pt=c.li.querySelector(".pt"); pt.textContent=""; pt.classList.remove("neg"); });
+  if(world) world.prepare();
+
+  const picks=[];
+  for(const c of CATS){
+    const li=c.li, nm=li.querySelector(".nm"), pt=li.querySelector(".pt");
+    li.classList.add("spin");
+    const end=performance.now()+1000;
+    while(performance.now()<end){
+      nm.textContent=pick(c.items).name;
+      await sleep(55);
+    }
+    const it=pick(c.items);
+    picks.push(it);
+    li.classList.remove("spin"); li.classList.add("set");
+    nm.innerHTML="";
+    nm.append(document.createTextNode(it.name));
+    if(it.tag){ const tg=document.createElement("span"); tg.className="tg"; tg.textContent=TAGS[it.tag].name; nm.appendChild(tg); }
+    pt.textContent=(it.pts>0?"+":"")+it.pts;
+    pt.classList.toggle("neg",it.pts<0);
+    await sleep(110);
+  }
+
+  const ev=evaluate(picks);
+  const st=store.get();
+  st.got=Array.from(new Set([...(st.got||[]),ev.rank]));
+  st.plays=(st.plays||0)+1;
+  const newBest=!st.best||ev.rank<st.best;
+  if(newBest) st.best=ev.rank;
+  store.set(st);
+
+  const vips=world?world.run(ev):[];
+  showBanner(ev);
+  showResult(ev,vips,st,newBest);
+  renderRankList(ev.rank);
+
+  btn.disabled=false; btn.textContent="もう一度開店する";
+  running=false;
+}
+
+function showBanner(ev){
+  const b=$("#banner");
+  b.style.setProperty("--tier",tierColor(ev.rank));
+  $("#bRank").textContent=ev.rank;
+  $("#bTitle").textContent=RANKS[ev.rank-1];
+  b.hidden=false;
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+}
+
+function showResult(ev,vips,st,newBest){
+  const r=$("#result");
+  const combos=ev.combos.length
+    ? `<ul>${ev.combos.map(c=>`<li><span>${c.name}</span><span class="p ${c.pts<0?"neg":""}">${c.pts>0?"+":""}${c.pts}</span></li>`).join("")}</ul>`
+    : `<p>今回は発動なし。同じテーマ（宇宙・和・猫など）が2つ以上そろうとボーナスが付きます。</p>`;
+  const g=guestsPerDay(ev.rank);
+  const guests=g===0?"0人。今日も誰も来ませんでした。":`約${g.toLocaleString()}人`;
+  const vipText=vips.length?vips.join("、"):"特別なお客様はなし";
+  r.innerHTML=`
+    <div class="total"><span>合計</span><b>${ev.total} pt</b></div>
+    <p class="sub">基本 ${ev.base} pt ／ 組み合わせ ${ev.bonus>=0?"+":""}${ev.bonus} pt</p>
+    <div class="blk"><h3>組み合わせボーナス</h3>${combos}</div>
+    <div class="blk"><h3>1日の来客数</h3><p>${guests}</p></div>
+    <div class="blk"><h3>来店した特別なお客様</h3><p>${vipText}</p></div>
+    <p class="record">${newBest?"最高記録を更新しました。":""}最高記録 ${st.best}位 ／ 開店 ${st.plays}回</p>`;
+  r.hidden=false;
+}
+
+/* ==========================================================
+   3D ワールド
+   ========================================================== */
+let world=null;
+try{ if(window.THREE) world=createWorld(); else throw new Error("no three"); }
+catch(e){ console.error(e); $("#err").style.display="flex"; $("#hint").style.display="none"; }
+
+function createWorld(){
+  const stage=$("#stage"), canvas=$("#c");
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.outputEncoding=THREE.sRGBEncoding;
+  const scene=new THREE.Scene();
+  scene.background=new THREE.Color(0x9ccfee);
+  scene.fog=new THREE.Fog(0x9ccfee,70,190);
+  const camera=new THREE.PerspectiveCamera(42,1,0.1,700);
+  const hemi=new THREE.HemisphereLight(0xffffff,0x5b6a4a,0.9); scene.add(hemi);
+  const sun=new THREE.DirectionalLight(0xfff4e0,0.85); sun.position.set(-20,32,24); scene.add(sun);
+
+  /* ---- マテリアル / ジオメトリ共有 ---- */
+  const mc={};
+  const mat=(color,o)=>{ const k=color+"|"+(o?JSON.stringify(o):""); return mc[k]||(mc[k]=new THREE.MeshLambertMaterial(Object.assign({color},o||{}))); };
+  const bmat=(color,o)=>new THREE.MeshBasicMaterial(Object.assign({color},o||{}));
+  const G={
+    leg:new THREE.BoxGeometry(0.17,0.72,0.2),
+    body:new THREE.CylinderGeometry(0.27,0.33,0.86,10),
+    head:new THREE.SphereGeometry(0.26,14,10),
+    hair:new THREE.SphereGeometry(0.275,14,8,0,Math.PI*2,0,Math.PI*0.55),
+    eye:new THREE.SphereGeometry(0.07,8,6),
+    glasses:new THREE.BoxGeometry(0.42,0.08,0.06),
+    tie:new THREE.BoxGeometry(0.08,0.45,0.04),
+    crown:new THREE.CylinderGeometry(0.2,0.22,0.2,8),
+    crownTip:new THREE.ConeGeometry(0.045,0.12,5),
+    cape:new THREE.BoxGeometry(0.66,1.35,0.06),
+    ant:new THREE.CylinderGeometry(0.018,0.018,0.4,5),
+    antTip:new THREE.SphereGeometry(0.06,8,6),
+    sash:new THREE.BoxGeometry(0.1,0.8,0.36),
+    hatBrim:new THREE.CylinderGeometry(0.4,0.4,0.03,16),
+    hatTop:new THREE.CylinderGeometry(0.2,0.22,0.26,14)
+  };
+  const SKIN=[0xf1c9a5,0xe0ac82,0xc98e62,0x9a6a45,0x6e4a31,0xf6d7bd];
+  const HAIR=[0x2b1d14,0x4a3020,0x151515,0x8a5a2b,0xd8b56a,0x9a9a9a,0xa33b2b];
+  const SHIRT=[0xd9534f,0x3f7cac,0x5aa469,0xf0ad4e,0x8e6cc0,0xe8e1d0,0x2f4858,0xf6ae99,0x48a9a6,0xc06c84,0x7a8b99,0xffd166];
+  const PANTS=[0x2d3142,0x3c4f65,0x4b3b2f,0x222222,0x5e6472,0x6b5b4b];
+
+  function makePerson(o){
+    o=o||{};
+    const g=new THREE.Group();
+    const skin=o.skin!=null?o.skin:pick(SKIN);
+    const legs=[];
+    [-0.1,0.1].forEach(x=>{ const l=new THREE.Mesh(G.leg,mat(o.pants!=null?o.pants:pick(PANTS))); l.position.set(x,0.36,0); g.add(l); legs.push(l); });
+    const body=new THREE.Mesh(G.body,mat(o.shirt!=null?o.shirt:pick(SHIRT))); body.position.y=1.15; g.add(body);
+    const head=new THREE.Mesh(G.head,mat(skin)); head.position.y=1.84;
+    if(o.headScale) head.scale.setScalar(o.headScale);
+    g.add(head);
+    if(o.hair!==false&&!o.alien){ const h=new THREE.Mesh(G.hair,mat(o.hair!=null?o.hair:pick(HAIR))); h.position.set(0,1.86,-0.02); h.rotation.x=-0.25; g.add(h); }
+    if(o.glasses){ const gl=new THREE.Mesh(G.glasses,mat(0x0d0d0d)); gl.position.set(0,1.87,0.22); g.add(gl); }
+    if(o.tie){ const t=new THREE.Mesh(G.tie,mat(o.tie)); t.position.set(0,1.2,0.3); g.add(t); }
+    if(o.sash){ const s=new THREE.Mesh(G.sash,mat(o.sash)); s.position.set(0,1.15,0.02); s.rotation.z=0.6; s.scale.set(1,1,1.05); g.add(s); }
+    if(o.cape){ const c=new THREE.Mesh(G.cape,mat(o.cape)); c.position.set(0,1.05,-0.32); g.add(c); }
+    if(o.crown){
+      const cr=new THREE.Mesh(G.crown,mat(0xf2c230)); cr.position.y=2.14; g.add(cr);
+      for(let i=0;i<6;i++){ const tp=new THREE.Mesh(G.crownTip,mat(0xf2c230)); const a=i/6*Math.PI*2; tp.position.set(Math.cos(a)*0.19,2.3,Math.sin(a)*0.19); g.add(tp); }
+    }
+    if(o.hat){ const b=new THREE.Mesh(G.hatBrim,mat(o.hat)); b.position.y=2.07; g.add(b); const t=new THREE.Mesh(G.hatTop,mat(o.hat)); t.position.y=2.2; g.add(t); }
+    if(o.alien){
+      [-0.1,0.1].forEach(x=>{ const e=new THREE.Mesh(G.eye,mat(0x050505)); e.scale.set(1.2,1.6,0.6); e.position.set(x*(o.headScale||1),1.86,0.24*(o.headScale||1)); g.add(e); });
+      [-0.12,0.12].forEach(x=>{ const a=new THREE.Mesh(G.ant,mat(skin)); a.position.set(x,2.35,0); a.rotation.z=-x*2.5; g.add(a); const tip=new THREE.Mesh(G.antTip,bmat(0xfff27a)); tip.position.set(x*2.2,2.55,0); g.add(tip); });
+    }
+    if(o.scale) g.scale.setScalar(o.scale);
+    g.userData.legs=legs;
+    return g;
+  }
+
+  function textSprite(text,bg,fg,h){
+    const c=document.createElement("canvas"); const x=c.getContext("2d");
+    const fs=44; const font=`700 ${fs}px "Zen Maru Gothic","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif`;
+    x.font=font; const w=Math.ceil(x.measureText(text).width)+44;
+    c.width=w; c.height=74; x.font=font;
+    x.fillStyle=bg||"rgba(20,20,30,.85)";
+    const r=18; x.beginPath(); x.moveTo(r,0); x.lineTo(w-r,0); x.quadraticCurveTo(w,0,w,r); x.lineTo(w,74-r); x.quadraticCurveTo(w,74,w-r,74); x.lineTo(r,74); x.quadraticCurveTo(0,74,0,74-r); x.lineTo(0,r); x.quadraticCurveTo(0,0,r,0); x.fill();
+    x.fillStyle=fg||"#fff"; x.textAlign="center"; x.textBaseline="middle"; x.fillText(text,w/2,39);
+    const tex=new THREE.CanvasTexture(c); tex.encoding=THREE.sRGBEncoding;
+    const s=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,depthTest:false,transparent:true}));
+    const hh=h||0.62; s.scale.set(w/74*hh,hh,1); s.renderOrder=20;
+    return s;
+  }
+  function glowTex(){
+    const c=document.createElement("canvas"); c.width=c.height=64; const x=c.getContext("2d");
+    const g=x.createRadialGradient(32,32,0,32,32,32); g.addColorStop(0,"rgba(255,255,255,1)"); g.addColorStop(.35,"rgba(255,255,255,.6)"); g.addColorStop(1,"rgba(255,255,255,0)");
+    x.fillStyle=g; x.fillRect(0,0,64,64); return new THREE.CanvasTexture(c);
+  }
+  const GLOW=glowTex();
+
+  /* ---- 静的な街 ---- */
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(400,400),new THREE.MeshLambertMaterial({color:0x8ea875}));
+  ground.rotation.x=-Math.PI/2; scene.add(ground);
+  const road=new THREE.Mesh(new THREE.PlaneGeometry(120,6),new THREE.MeshLambertMaterial({color:0x4a4d52}));
+  road.rotation.x=-Math.PI/2; road.position.set(0,0.02,12.5); scene.add(road);
+  for(let i=-14;i<=14;i++){ const d=new THREE.Mesh(new THREE.PlaneGeometry(1.6,0.18),bmat(0xe9e4d4)); d.rotation.x=-Math.PI/2; d.position.set(i*4,0.03,12.5); scene.add(d); }
+  const walk=new THREE.Mesh(new THREE.PlaneGeometry(120,2.6),new THREE.MeshLambertMaterial({color:0xc9bfae}));
+  walk.rotation.x=-Math.PI/2; walk.position.set(0,0.025,8.9); scene.add(walk);
+  const plaza=new THREE.Mesh(new THREE.PlaneGeometry(24,8),new THREE.MeshLambertMaterial({color:0xb9a88c}));
+  plaza.rotation.x=-Math.PI/2; plaza.position.set(0,0.022,3.8); scene.add(plaza);
+
+  const sea=new THREE.Mesh(new THREE.PlaneGeometry(400,160),new THREE.MeshLambertMaterial({color:0x2f8fbf}));
+  sea.rotation.x=-Math.PI/2; sea.position.set(0,0.05,-95); sea.visible=false; scene.add(sea);
+
+  // カフェの建物
+  const cafe=new THREE.Group(); scene.add(cafe);
+  const add=(geo,m,x,y,z,parent)=>{ const o=new THREE.Mesh(geo,m); o.position.set(x,y,z); (parent||cafe).add(o); return o; };
+  add(new THREE.BoxGeometry(14,0.3,9),mat(0xcbb89a),0,0.15,-4.5);
+  add(new THREE.BoxGeometry(13,6,8),mat(0x2e4a4f),0,3.3,-4.5);
+  add(new THREE.BoxGeometry(13.3,0.35,8.3),mat(0x7a5230),0,6.3,-4.5);
+  const roof=add(new THREE.ConeGeometry(10.2,3.4,4),mat(0x6b3b2a),0,8.15,-4.5); roof.rotation.y=Math.PI/4; roof.scale.set(1,1,0.66);
+  const winMat=bmat(0xffd58a);
+  [-3.9,3.9].forEach(x=>{
+    add(new THREE.PlaneGeometry(3.4,2.2),winMat,x,2.5,0.02);
+    add(new THREE.BoxGeometry(3.7,0.16,0.18),mat(0x7a5230),x,1.33,0.08);
+    add(new THREE.BoxGeometry(3.7,0.16,0.18),mat(0x7a5230),x,3.67,0.08);
+    add(new THREE.BoxGeometry(0.12,2.3,0.12),mat(0x7a5230),x,2.5,0.06);
+  });
+  add(new THREE.PlaneGeometry(1.7,2.9),mat(0x4a2e1c),0,1.75,0.03);
+  add(new THREE.BoxGeometry(2.0,0.14,0.2),mat(0x7a5230),0,3.28,0.08);
+  const doorKnob=add(new THREE.SphereGeometry(0.07,8,6),mat(0xd9a441),0.55,1.7,0.1);
+  // ストライプのオーニング
+  const sc=document.createElement("canvas"); sc.width=256; sc.height=16; const sx=sc.getContext("2d");
+  for(let i=0;i<12;i++){ sx.fillStyle=i%2?"#f3ead6":"#b8322a"; sx.fillRect(i*256/12,0,256/12,16); }
+  const stripe=new THREE.CanvasTexture(sc); stripe.encoding=THREE.sRGBEncoding;
+  const awning=add(new THREE.BoxGeometry(12.4,0.12,2.2),new THREE.MeshLambertMaterial({map:stripe}),0,3.95,1.0); awning.rotation.x=0.38;
+  // 看板
+  const signCanvas=document.createElement("canvas"); signCanvas.width=1024; signCanvas.height=200;
+  const signTex=new THREE.CanvasTexture(signCanvas); signTex.encoding=THREE.sRGBEncoding;
+  const signMat=new THREE.MeshBasicMaterial({map:signTex});
+  const sign=add(new THREE.PlaneGeometry(8.2,1.6),signMat,0,5.25,0.06);
+  function drawSign(text,sub,color){
+    const x=signCanvas.getContext("2d");
+    x.fillStyle="#3b2416"; x.fillRect(0,0,1024,200);
+    x.strokeStyle="#d9a441"; x.lineWidth=10; x.strokeRect(10,10,1004,180);
+    let fs=90; const f=n=>`${n}px "Dela Gothic One","Hiragino Sans","Yu Gothic",sans-serif`;
+    x.font=f(fs); while(x.measureText(text).width>930&&fs>30){ fs-=4; x.font=f(fs); }
+    x.textAlign="center"; x.textBaseline="middle"; x.fillStyle=color||"#f3e3c0";
+    x.fillText(text,512,sub?82:102);
+    if(sub){ x.font=`700 38px "Zen Maru Gothic","Yu Gothic",sans-serif`; x.fillStyle="#f3e3c0"; x.fillText(sub,512,158); }
+    signTex.needsUpdate=true;
+  }
+  // 左側：看板スタンドと植木
+  const aframe=new THREE.Group(); aframe.position.set(-2.1,0,1.6); scene.add(aframe);
+  [-0.25,0.25].forEach(z=>{ const b=new THREE.Mesh(new THREE.BoxGeometry(0.9,1.3,0.06),mat(0x2a332d)); b.position.set(0,0.62,z); b.rotation.x=z>0?-0.2:0.2; aframe.add(b); });
+  [[-6.2,0.8],[6.2,0.8],[-12.5,1],[12.5,1]].forEach(([x,z])=>{
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(0.45,0.35,0.7,10),mat(0x9c5a3c)); pot.position.set(x,0.35,z); scene.add(pot);
+    const bush=new THREE.Mesh(new THREE.SphereGeometry(0.7,10,8),mat(0x4f8a3f)); bush.position.set(x,1.1,z); scene.add(bush);
+  });
+  // テラス席（右側）
+  const TABLES=[[4.2,2.6],[7.8,2.6],[4.2,5.6],[7.8,5.6]];
+  const SEATS=[];
+  const umbColors=[0xb8322a,0x2f6f68,0xd9a441,0x6b4c9a];
+  TABLES.forEach(([tx,tz],i)=>{
+    add(new THREE.CylinderGeometry(0.62,0.62,0.07,16),mat(0xeee4d0),tx,0.92,tz,scene);
+    add(new THREE.CylinderGeometry(0.06,0.06,0.9,6),mat(0x333333),tx,0.45,tz,scene);
+    add(new THREE.CylinderGeometry(0.05,0.05,2.6,6),mat(0xdddddd),tx,1.3,tz,scene);
+    add(new THREE.ConeGeometry(1.7,0.7,8),mat(umbColors[i]),tx,2.75,tz,scene);
+    [-1,1].forEach(sd=>{
+      const cx=tx+sd*1.0;
+      add(new THREE.BoxGeometry(0.55,0.07,0.55),mat(0x7a5230),cx,0.52,tz,scene);
+      const back=add(new THREE.BoxGeometry(0.07,0.6,0.55),mat(0x7a5230),cx+sd*0.27,0.82,tz,scene);
+      SEATS.push({x:cx,z:tz,ry:sd>0?-Math.PI/2:Math.PI/2});
+    });
+  });
+  // レッドカーペット（VIP用）
+  const carpet=new THREE.Group(); carpet.visible=false; scene.add(carpet);
+  const cg=new THREE.Mesh(new THREE.PlaneGeometry(10.6,7.2),bmat(0xd9a441)); cg.rotation.x=-Math.PI/2; cg.position.set(-6.4,0.03,4.4); carpet.add(cg);
+  const cr=new THREE.Mesh(new THREE.PlaneGeometry(10,6.6),mat(0xa3122a)); cr.rotation.x=-Math.PI/2; cr.position.set(-6.4,0.04,4.4); carpet.add(cr);
+  const VIPSPOTS=[];
+  [2.3,4.4,6.5].forEach(z=>[-3,-5.1,-7.2,-9.3].forEach(x=>VIPSPOTS.push([x,z])));
+
+  // 木・ヤシ
+  const trees=new THREE.Group(); scene.add(trees);
+  const leafMat=new THREE.MeshLambertMaterial({color:0x4e8a3e});
+  const trunkMat=mat(0x6b4a2e);
+  const TREEPOS=[[-18,-6],[-22,-14],[-14,-16],[18,-6],[23,-13],[14,-17],[-28,-2],[29,-2],[-9,-18],[9,-19],[-32,-12],[33,-10],[0,-22],[-26,4],[27,4]];
+  TREEPOS.forEach(([x,z])=>{
+    const s=rand(0.8,1.3);
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.25*s,0.35*s,2.4*s,7),trunkMat); t.position.set(x,1.2*s,z); trees.add(t);
+    const l=new THREE.Mesh(new THREE.SphereGeometry(1.7*s,10,8),leafMat); l.position.set(x,3.2*s,z); trees.add(l);
+  });
+  const palms=new THREE.Group(); palms.visible=false; scene.add(palms);
+  const palmLeaf=mat(0x3f8f3a);
+  [[-17,-4],[-23,-11],[18,-5],[24,-12],[-29,2],[30,1],[0,-20]].forEach(([x,z])=>{
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.3,5,6),mat(0x9a7a4f)); t.position.set(x,2.5,z); t.rotation.z=0.12; palms.add(t);
+    for(let i=0;i<6;i++){ const lf=new THREE.Mesh(new THREE.BoxGeometry(2.6,0.06,0.5),palmLeaf); const a=i/6*Math.PI*2; lf.position.set(x+0.3+Math.cos(a)*1.1,5.0,z+Math.sin(a)*1.1); lf.rotation.y=-a; lf.rotation.z=-0.35; palms.add(lf); }
+  });
+  // 星空
+  const starGeo=new THREE.BufferGeometry(); const sp=new Float32Array(1400*3);
+  for(let i=0;i<1400;i++){ const th=Math.random()*Math.PI*2, ph=Math.random()*Math.PI*0.48; const r=260; sp[i*3]=r*Math.cos(th)*Math.sin(ph+0.05); sp[i*3+1]=r*Math.cos(ph)+10; sp[i*3+2]=r*Math.sin(th)*Math.sin(ph+0.05); }
+  starGeo.setAttribute("position",new THREE.BufferAttribute(sp,3));
+  const stars=new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xffffff,size:1.3,sizeAttenuation:false,fog:false}));
+  stars.visible=false; scene.add(stars);
+  // 地球（宇宙立地で空に浮かぶ）
+  const earth=new THREE.Mesh(new THREE.SphereGeometry(14,32,20),new THREE.MeshLambertMaterial({color:0x3f7fd0,emissive:0x0b2a55,fog:false}));
+  earth.position.set(-60,55,-150); earth.visible=false; scene.add(earth);
+
+  /* ---- 動的オブジェクト ---- */
+  const dyn=new THREE.Group(); scene.add(dyn);
+  let T=0;
+  let movers=[], timers=[], anims=[];
+  const later=(sec,fn)=>timers.push({at:T+sec,fn});
+  function walkTo(obj,path,speed,onEnd){
+    movers.push({obj,path:path.map(p=>new THREE.Vector3(p[0],0,p[1])),i:0,speed,onEnd,base:obj.userData.baseY||0,ph:Math.random()*6});
+  }
+  function clearDyn(){
+    movers=[]; timers=[]; anims=[];
+    for(let i=dyn.children.length-1;i>=0;i--) dyn.remove(dyn.children[i]);
+  }
+
+  function spawnCustomer(delay){
+    later(delay,()=>{
+      const side=Math.random()<0.5?-1:1;
+      const p=makePerson(); const lane=rand(8.3,9.5);
+      p.position.set(side*44,0,lane); dyn.add(p);
+      walkTo(p,[[side*44,lane],[rand(-0.5,0.5),lane],[rand(-0.3,0.3),0.8],[0,-0.4]],rand(2.4,3.4),()=>{
+        p.visible=false;
+        later(rand(3,9),()=>{
+          p.visible=true; p.position.set(0,0,-0.4);
+          const o=-side;
+          walkTo(p,[[0,1],[rand(-0.5,0.5),lane+0.4],[o*44,lane+0.4]],rand(2.4,3.4),()=>{ dyn.remove(p); spawnCustomer(rand(0,2.5)); });
+        });
+      });
+    });
+  }
+  function spawnPasser(delay){
+    later(delay,()=>{
+      const side=Math.random()<0.5?-1:1;
+      const p=makePerson(); const lane=rand(8.1,9.7);
+      p.position.set(side*44,0,lane); dyn.add(p);
+      walkTo(p,[[side*44,lane],[-side*44,lane]],rand(2.2,3.2),()=>{ dyn.remove(p); spawnPasser(rand(1,5)); });
+    });
+  }
+  function seatPeople(n){
+    const order=SEATS.slice().sort(()=>Math.random()-0.5);
+    for(let i=0;i<n&&i<order.length;i++){
+      const s=order[i]; const p=makePerson();
+      p.userData.legs.forEach(l=>l.visible=false);
+      p.position.set(s.x,-0.25,s.z); p.rotation.y=s.ry; dyn.add(p);
+      const ph=Math.random()*6;
+      anims.push((dt,t)=>{ p.rotation.y=s.ry+Math.sin(t*0.8+ph)*0.25; return true; });
+    }
+  }
+  function queuePeople(n){
+    const list=[];
+    for(let k=0;k<n;k++){
+      let x,z;
+      if(k<7){ x=1.35; z=1.2+k*0.9; } else { x=2.3+(k-7)*0.85; z=7.35; }
+      const p=makePerson(); p.position.set(x,0,z); p.rotation.y=k<7?Math.PI:-Math.PI/2; dyn.add(p); list.push({p,ph:Math.random()*6,ry:p.rotation.y});
+    }
+    anims.push((dt,t)=>{ list.forEach(q=>{ q.p.rotation.y=q.ry+Math.sin(t*0.9+q.ph)*0.35; q.p.position.y=Math.max(0,Math.sin(t*2.2+q.ph))*0.04; }); return true; });
+  }
+
+  function addVIP(opts,label,color,spot,from,delay,toastText){
+    later(delay,()=>{
+      const p=makePerson(opts);
+      p.position.set(from[0],0,from[1]); dyn.add(p);
+      const lb=textSprite(label,color); lb.position.set(0,opts.alien?3.1:(opts.crown?2.85:2.6),0); p.add(lb);
+      if(toastText) toast(toastText,color);
+      const path=[from];
+      if(from[1]>8) path.push([spot[0]+rand(-0.3,0.3),9]);
+      path.push(spot);
+      walkTo(p,path,opts.fast?4.2:2.6,()=>{ p.rotation.y=0.15; });
+    });
+  }
+  function addGuard(pos,from,delay){
+    later(delay,()=>{
+      const g=makePerson({shirt:0x16181c,pants:0x16181c,tie:0x16181c,glasses:true,hair:0x111111});
+      g.position.set(from[0],0,from[1]); dyn.add(g);
+      walkTo(g,[from,[pos[0],9],pos],3.0,()=>{ g.rotation.y=0; });
+    });
+  }
+
+  function ufoArrive(nAliens){
+    const ufo=new THREE.Group();
+    const disc=new THREE.Mesh(new THREE.CylinderGeometry(3.0,3.8,0.7,32),new THREE.MeshLambertMaterial({color:0xb9c3d0}));
+    ufo.add(disc);
+    const rim=new THREE.Mesh(new THREE.TorusGeometry(3.4,0.16,8,40),new THREE.MeshLambertMaterial({color:0x6f7b8a})); rim.rotation.x=Math.PI/2; ufo.add(rim);
+    const dome=new THREE.Mesh(new THREE.SphereGeometry(1.6,20,12,0,Math.PI*2,0,Math.PI/2),new THREE.MeshLambertMaterial({color:0x8ff0ff,transparent:true,opacity:0.7,emissive:0x1a5a66}));
+    dome.position.y=0.3; ufo.add(dome);
+    const lights=[];
+    for(let i=0;i<12;i++){ const l=new THREE.Mesh(new THREE.SphereGeometry(0.16,8,6),bmat(i%2?0xff5ca8:0x7dfcff)); const a=i/12*Math.PI*2; l.position.set(Math.cos(a)*3.45,-0.1,Math.sin(a)*3.45); ufo.add(l); lights.push(l); }
+    const beamGeo=new THREE.CylinderGeometry(0.9,2.8,13,24,1,true); beamGeo.translate(0,-6.5,0);
+    const beam=new THREE.Mesh(beamGeo,new THREE.MeshBasicMaterial({color:0xa6fdff,transparent:true,opacity:0.0,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));
+    beam.position.y=-0.3; ufo.add(beam);
+    const X=-11,Z=13.5;
+    ufo.position.set(X,60,Z); dyn.add(ufo);
+    toast("🛸 上空にUFOが出現！","#4ecdc4");
+    let t0=0;
+    anims.push((dt,t)=>{
+      t0+=dt;
+      const k=Math.min(1,t0/3.5); const e=1-Math.pow(1-k,3);
+      ufo.position.y=60+(13-60)*e+Math.sin(t*1.6)*0.25;
+      ufo.rotation.y+=dt*1.2;
+      lights.forEach((l,i)=>l.visible=((Math.floor(t*6)+i)%3)!==0);
+      if(k>=1) beam.material.opacity=Math.min(0.28,beam.material.opacity+dt*0.2);
+      return true;
+    });
+    const al=ALIENS.slice().sort(()=>Math.random()-0.5).slice(0,nAliens);
+    al.forEach((a,i)=>{
+      later(4.2+i*1.1,()=>{
+        const p=makePerson({alien:true,skin:a.c,shirt:a.suit,pants:a.suit,headScale:1.45});
+        p.position.set(X+rand(-0.5,0.5),10,Z); dyn.add(p);
+        const lb=textSprite(a.n,"#1f7a64"); lb.position.set(0,3.1,0); p.add(lb);
+        toast(`👽 ${a.n}がコーヒーを飲みに来店`,"#4ecdc4");
+        let d=0;
+        anims.push((dt)=>{
+          d+=dt; p.position.y=Math.max(0,10-d*6); p.rotation.y+=dt*3;
+          if(p.position.y<=0){
+            const spot=[X+rand(-4.5,4.5),rand(8.4,10.5)];
+            walkTo(p,[[p.position.x,p.position.z],spot],2.2,()=>{ p.rotation.y=0.2; });
+            return false;
+          }
+          return true;
+        });
+      });
+    });
+    return al.map(a=>a.n);
+  }
+
+  function carArrive(delay,onStop){
+    later(delay,()=>{
+      const car=new THREE.Group();
+      const body=new THREE.Mesh(new THREE.BoxGeometry(4.6,0.9,2.0),mat(0x0f1215)); body.position.y=0.75; car.add(body);
+      const cab=new THREE.Mesh(new THREE.BoxGeometry(2.5,0.8,1.8),mat(0x1c2228)); cab.position.set(-0.2,1.6,0); car.add(cab);
+      const win=new THREE.Mesh(new THREE.BoxGeometry(2.52,0.5,1.82),mat(0x3a4a5a)); win.position.set(-0.2,1.65,0); car.add(win);
+      const wheels=[];
+      [[-1.5,1],[1.5,1],[-1.5,-1],[1.5,-1]].forEach(([x,z])=>{ const w=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.3,14),mat(0x080808)); w.rotation.x=Math.PI/2; w.position.set(x,0.42,z); car.add(w); wheels.push(w); });
+      // 日の丸の旗
+      const fc=document.createElement("canvas"); fc.width=60; fc.height=40; const fx=fc.getContext("2d"); fx.fillStyle="#fff"; fx.fillRect(0,0,60,40); fx.fillStyle="#bc002d"; fx.beginPath(); fx.arc(30,20,12,0,Math.PI*2); fx.fill();
+      const flag=new THREE.Mesh(new THREE.PlaneGeometry(0.6,0.4),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(fc),side:THREE.DoubleSide}));
+      flag.position.set(2.1,1.6,0.9); car.add(flag);
+      const pole=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.6,4),mat(0xcccccc)); pole.position.set(1.8,1.45,0.9); car.add(pole);
+      car.position.set(-50,0,12.3); dyn.add(car);
+      let t0=0;
+      anims.push((dt)=>{
+        t0+=dt; const k=Math.min(1,t0/3.2); const e=1-Math.pow(1-k,3);
+        car.position.x=-50+(-5.5+50)*e;
+        wheels.forEach(w=>w.rotation.y+=dt*10*(1-k));
+        if(k>=1){ onStop(car); return false; }
+        return true;
+      });
+    });
+  }
+
+  function firework(){
+    const n=90; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(n*3); const vel=[];
+    const o=new THREE.Vector3(rand(-22,22),rand(16,28),rand(-34,-8));
+    for(let i=0;i<n;i++){ pos[i*3]=o.x; pos[i*3+1]=o.y; pos[i*3+2]=o.z; const v=new THREE.Vector3(rand(-1,1),rand(-1,1),rand(-1,1)).normalize().multiplyScalar(rand(6,9)); vel.push(v); }
+    geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+    const m=new THREE.PointsMaterial({color:pick([0xff5c8a,0xffd166,0x7dfcff,0x9dff7a,0xc58bff,0xffffff]),size:0.6,map:GLOW,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fog:false});
+    const pts=new THREE.Points(geo,m); dyn.add(pts);
+    let life=0;
+    anims.push(dt=>{
+      life+=dt;
+      for(let i=0;i<n;i++){ const v=vel[i]; v.y-=3.2*dt; v.multiplyScalar(0.985); pos[i*3]+=v.x*dt; pos[i*3+1]+=v.y*dt; pos[i*3+2]+=v.z*dt; }
+      geo.attributes.position.needsUpdate=true;
+      m.opacity=Math.max(0,1-life/1.9);
+      if(life>1.9){ dyn.remove(pts); geo.dispose(); m.dispose(); return false; }
+      return true;
+    });
+  }
+  function fireworksLoop(rate){ const go=()=>{ firework(); later(rand(0.25,1)/rate,go); }; later(1,go); }
+
+  function searchlights(){
+    [-10,10].forEach((x,i)=>{
+      const geo=new THREE.CylinderGeometry(0.25,3.2,45,18,1,true); geo.translate(0,22.5,0);
+      const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xfff3c4,transparent:true,opacity:0.16,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending,fog:false}));
+      m.position.set(x,0,-11); dyn.add(m);
+      anims.push((dt,t)=>{ m.rotation.z=Math.sin(t*0.7+i*2)*0.5; m.rotation.x=Math.cos(t*0.5+i)*0.25; return true; });
+    });
+  }
+  function goldRing(){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(8,0.28,10,80),bmat(0xffd35c,{fog:false}));
+    ring.position.set(0,13,-4.5); ring.rotation.x=Math.PI/2.3; dyn.add(ring);
+    const ring2=new THREE.Mesh(new THREE.TorusGeometry(10.5,0.12,8,80),bmat(0xc58bff,{fog:false}));
+    ring2.position.copy(ring.position); ring2.rotation.x=Math.PI/2.1; dyn.add(ring2);
+    anims.push((dt,t)=>{ ring.rotation.z+=dt*0.6; ring2.rotation.z-=dt*0.35; ring.position.y=13+Math.sin(t*1.2)*0.4; return true; });
+  }
+  function confetti(){
+    const n=500; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(n*3); const col=new Float32Array(n*3);
+    const pal=[[1,.36,.54],[1,.82,.4],[.49,.99,1],[.62,1,.48],[.77,.55,1]];
+    for(let i=0;i<n;i++){ pos[i*3]=rand(-16,16); pos[i*3+1]=rand(0,22); pos[i*3+2]=rand(-8,14); const c=pick(pal); col[i*3]=c[0]; col[i*3+1]=c[1]; col[i*3+2]=c[2]; }
+    geo.setAttribute("position",new THREE.BufferAttribute(pos,3)); geo.setAttribute("color",new THREE.BufferAttribute(col,3));
+    const pts=new THREE.Points(geo,new THREE.PointsMaterial({size:0.22,vertexColors:true})); dyn.add(pts);
+    anims.push((dt,t)=>{ for(let i=0;i<n;i++){ pos[i*3+1]-=dt*(1.5+(i%5)*0.3); pos[i*3]+=Math.sin(t*2+i)*dt*0.6; if(pos[i*3+1]<0) pos[i*3+1]=22; } geo.attributes.position.needsUpdate=true; return true; });
+  }
+  function rain(){
+    const n=1800; const geo=new THREE.BufferGeometry(); const pos=new Float32Array(n*3);
+    for(let i=0;i<n;i++){ pos[i*3]=rand(-45,45); pos[i*3+1]=rand(0,40); pos[i*3+2]=rand(-30,30); }
+    geo.setAttribute("position",new THREE.BufferAttribute(pos,3));
+    const pts=new THREE.Points(geo,new THREE.PointsMaterial({color:0xb8c6d4,size:0.12,transparent:true,opacity:0.7})); dyn.add(pts);
+    anims.push(dt=>{ for(let i=0;i<n;i++){ pos[i*3+1]-=dt*26; if(pos[i*3+1]<0) pos[i*3+1]=40; } geo.attributes.position.needsUpdate=true; return true; });
+  }
+  function crows(n){
+    const spots=[[4.2,0.98,2.6],[7.8,0.98,5.6],[-1.2,0,2.5],[1.5,0,4],[-4,0,6],[7.8,0.98,2.6]];
+    for(let i=0;i<n;i++){
+      const c=new THREE.Group();
+      const b=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.3,0.28),mat(0x111114)); b.position.y=0.25; c.add(b);
+      const h=new THREE.Mesh(new THREE.SphereGeometry(0.14,8,6),mat(0x111114)); h.position.set(0.3,0.42,0); c.add(h);
+      const bk=new THREE.Mesh(new THREE.ConeGeometry(0.05,0.18,5),mat(0x333333)); bk.rotation.z=-Math.PI/2; bk.position.set(0.46,0.42,0); c.add(bk);
+      const s=spots[i%spots.length]; c.position.set(s[0],s[1],s[2]); c.rotation.y=rand(0,6); dyn.add(c);
+      const ph=rand(0,6), y0=s[1];
+      anims.push((dt,t)=>{ const k=(t*1.3+ph)%4; c.position.y=y0+(k<0.3?Math.sin(k/0.3*Math.PI)*0.3:0); if(k<0.02) c.rotation.y+=rand(-1,1); return true; });
+    }
+    toast("カラスが様子を見にきた","#555");
+  }
+  function tumbleweed(){
+    const tw=new THREE.Mesh(new THREE.IcosahedronGeometry(0.8,1),new THREE.MeshBasicMaterial({color:0x8a6a3f,wireframe:true}));
+    dyn.add(tw); let x=-40;
+    anims.push((dt,t)=>{ x+=dt*6; if(x>40) x=-40; tw.position.set(x,0.8+Math.abs(Math.sin(t*3))*0.6,10.5); tw.rotation.z-=dt*7; return true; });
+  }
+  function cats(n){
+    const cols=[0xe39b4a,0xf2f2f2,0x2a2a2a,0x9a8a7a];
+    for(let i=0;i<n;i++){
+      const c=new THREE.Group(); const m=mat(pick(cols));
+      const b=new THREE.Mesh(new THREE.BoxGeometry(0.6,0.3,0.28),m); b.position.y=0.3; c.add(b);
+      const h=new THREE.Mesh(new THREE.SphereGeometry(0.18,10,8),m); h.position.set(0.36,0.5,0); c.add(h);
+      [-0.08,0.08].forEach(z=>{ const e=new THREE.Mesh(new THREE.ConeGeometry(0.06,0.14,4),m); e.position.set(0.38,0.7,z); c.add(e); });
+      const tl=new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.5,5),m); tl.position.set(-0.4,0.55,0); tl.rotation.z=0.6; c.add(tl);
+      [[-0.2,0.08],[0.2,0.08],[-0.2,-0.08],[0.2,-0.08]].forEach(([x,z])=>{ const l=new THREE.Mesh(new THREE.BoxGeometry(0.07,0.18,0.07),m); l.position.set(x,0.09,z); c.add(l); });
+      c.position.set(rand(-4,10),0,rand(1,7)); dyn.add(c);
+      const wander=()=>{ const to=[rand(-4,10),rand(1,7)]; const from=[c.position.x,c.position.z];
+        const dx=to[0]-from[0], dz=to[1]-from[1]; c.userData.baseY=0;
+        walkTo(c,[from,to],1.4,()=>later(rand(1,4),wander)); };
+      later(rand(0,2),wander);
+    }
+  }
+  function paparazzi(){
+    const pl=new THREE.PointLight(0xffffff,0,14); dyn.add(pl);
+    let next=0;
+    anims.push((dt,t)=>{
+      pl.intensity=Math.max(0,pl.intensity-dt*18);
+      if(t>next){
+        next=t+rand(0.08,0.35);
+        const x=rand(-11,-1), z=rand(8.3,10);
+        pl.position.set(x,2,z); pl.intensity=2.5;
+        const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOW,color:0xffffff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+        sp.position.set(x,1.7,z); sp.scale.set(1.4,1.4,1); dyn.add(sp);
+        let l=0; anims.push(d=>{ l+=d; sp.material.opacity=1-l/0.12; if(l>0.12){ dyn.remove(sp); sp.material.dispose(); return false; } return true; });
+      }
+      return true;
+    });
+    for(let i=0;i<4;i++){ const p=makePerson({shirt:0x555a60}); p.position.set(rand(-11,-1),0,rand(9.6,10.8)); p.rotation.y=Math.PI; dyn.add(p); }
+  }
+
+  const ALIENS=[{n:"火星人",c:0xe07a5f,suit:0x8a2b1f},{n:"金星人",c:0xf2c14e,suit:0xb48a1e},{n:"アンドロメダ星人",c:0x6fb7ff,suit:0x234a8a},{n:"グレイ型宇宙人",c:0xb7bec9,suit:0x5d6470},{n:"土星人",c:0xc59bff,suit:0x5a3a8a},{n:"オリオン星人",c:0x7de08a,suit:0x2c6b36}];
+  const KINGS=[{n:"ヨーロッパの王様",cape:0x9b1b30,sash:0x2a5bd7},{n:"砂漠の国の王",cape:0xf0ead8,sash:0xc9a227},{n:"北国の女王",cape:0x3a4fa0,sash:0xe9e2d0}];
+  const PRES=[{n:"大国の大統領",tie:0xc0272d},{n:"欧州の大統領",tie:0x2a5bd7},{n:"南米の大統領",tie:0x2e9e5b}];
+  const CELEBS=[{n:"ハリウッドスター",shirt:0xe8e1d0},{n:"世界的歌姫",shirt:0xff4f9a},{n:"トップモデル",shirt:0x111111},{n:"サッカー界のスター",shirt:0x2a5bd7},{n:"人気俳優",shirt:0x8e6cc0}];
+
+  /* ---- 環境 ---- */
+  function setEnv(rank,placeTag){
+    let sky=0x9ccfee, hI=0.9, sI=0.85, night=false, gcol=0x8ea875;
+    if(placeTag==="s") gcol=0xe2cc93;
+    else if(placeTag==="m") gcol=0x5f8f4a;
+    else if(placeTag==="w") gcol=0x88a066;
+    if(placeTag==="u"){ sky=0x04050d; night=true; hI=0.6; sI=0.75; gcol=0x8b8a90; }
+    else if(rank<=10){ sky=0x141b40; night=true; hI=0.5; sI=0.35; }
+    else if(rank>=75){ sky=0x6d767d; hI=0.62; sI=0.28; }
+    scene.background.setHex(sky); scene.fog.color.setHex(sky);
+    hemi.intensity=hI; sun.intensity=sI;
+    ground.material.color.setHex(gcol);
+    if(rank>=75&&placeTag!=="u") ground.material.color.multiplyScalar(0.8);
+    stars.visible=night; earth.visible=placeTag==="u";
+    sea.visible=placeTag==="s"; palms.visible=placeTag==="s";
+    trees.visible=placeTag!=="u"&&placeTag!=="s";
+    leafMat.color.setHex(placeTag==="w"?0xf2a7c3:(rank>=85?0x6b6a45:0x4e8a3e));
+    stage.style.background="#"+sky.toString(16).padStart(6,"0");
+  }
+  function windowGlow(k,night){
+    const base=new THREE.Color(0x3a3228), lit=new THREE.Color(night?0xffe3a0:0xffd58a);
+    winMat.color.copy(base.lerp(lit,Math.min(1,k)));
+  }
+
+  /* ---- 公開API ---- */
+  let flicker=false;
+  function prepare(){
+    clearDyn(); carpet.visible=false; flicker=false; signMat.color.setHex(0xffffff);
+    setEnv(50,null); windowGlow(0.35,false);
+    drawSign("準備中","まもなく開店します","#f1cf6a");
+    for(let i=0;i<4;i++) spawnPasser(rand(0,6));
+  }
+  function run(ev){
+    clearDyn();
+    const rank=ev.rank, place=ev.picks[4].tag, counts=ev.counts;
+    const night=place==="u"||rank<=10;
+    setEnv(rank,place);
+    drawSign(RANKS[rank-1],`第${rank}位 ／ 100`,rank<=10?"#ffd35c":"#f3e3c0");
+    const busy=Math.pow((101-rank)/100,1.5);
+    windowGlow(0.15+busy*1.1,night);
+    flicker=rank>=70; signMat.color.setHex(0xffffff);
+
+    seatPeople(rank===100?0:Math.round(Math.min(1,busy*1.8)*SEATS.length));
+    const walkers=rank===100?0:Math.round(busy*34)+(rank<=90?1:0);
+    for(let i=0;i<walkers;i++) spawnCustomer(rand(0,7));
+    const passers=rank>=95?2:5;
+    for(let i=0;i<passers;i++) spawnPasser(rand(0,8));
+    if(rank<=40) queuePeople(Math.round((41-rank)/40*24)+2);
+
+    const vips=[];
+    let si=0;
+    const nextSpot=()=>VIPSPOTS[si++%VIPSPOTS.length];
+    let guardX=-2.2;
+    const guardPos=()=>{ const p=[guardX,8.1]; guardX-=1.1; return p; };
+    let d=1.2;
+
+    if(rank<=30){
+      const n=rank<=10?4:rank<=20?3:2;
+      CELEBS.slice().sort(()=>Math.random()-0.5).slice(0,n).forEach(c=>{
+        addVIP({shirt:c.shirt,glasses:true,fast:true},c.n,"#a0247a",nextSpot(),[44,9],d,`🌟 ${c.n}がお忍びで来店`); vips.push(c.n); d+=1.3;
+      });
+      paparazzi();
+    }
+    if(rank<=19){
+      carArrive(1.5,(car)=>{
+        toast("🚗 日本の総理大臣が到着","#b8322a");
+        const spot=nextSpot();
+        const p=makePerson({shirt:0x1d2433,pants:0x1d2433,tie:0x8a1c2b,hair:0x2a2a2a});
+        p.position.set(car.position.x,0,11); dyn.add(p);
+        const lb=textSprite("日本の総理大臣","#b8322a"); lb.position.set(0,2.6,0); p.add(lb);
+        walkTo(p,[[car.position.x,11],[spot[0],9],spot],2.4,()=>{ p.rotation.y=0.15; });
+        [0,1].forEach(i=>{ const gp=guardPos(); const g=makePerson({shirt:0x16181c,pants:0x16181c,tie:0x16181c,glasses:true,hair:0x111111}); g.position.set(car.position.x+(i?1:-1),0,11); dyn.add(g); walkTo(g,[[g.position.x,11],gp],2.6,()=>{ g.rotation.y=0; }); });
+      });
+      vips.push("日本の総理大臣");
+    }
+    if(rank<=15){
+      const n=rank<=8?3:1;
+      PRES.slice(0,n).forEach(pr=>{
+        addVIP({shirt:0x22314d,pants:0x22314d,tie:pr.tie,hair:pick([0x2b1d14,0x9a9a9a,0xd8b56a])},pr.n,"#1f3c8a",nextSpot(),[44,9.3],d+0.5,`🇺🇳 ${pr.n}が来店`);
+        addGuard(guardPos(),[45,9.6],d+0.7); addGuard(guardPos(),[45.5,9.0],d+0.9);
+        vips.push(pr.n); d+=1.6;
+      });
+    }
+    if(rank<=12){
+      const n=rank<=5?3:2;
+      KINGS.slice(0,n).forEach(k=>{
+        addVIP({crown:true,cape:k.cape,sash:k.sash,shirt:0xf0ead8,pants:0x2d2d2d},k.n,"#8a1f2a",nextSpot(),[-44,9],d+0.8,`👑 ${k.n}が来店`);
+        vips.push(k.n); d+=1.6;
+      });
+    }
+    if(rank<=30) carpet.visible=true;
+    if(rank<=6||(counts.u||0)>=3){
+      const n=rank<=3?5:rank<=6?3:2;
+      vips.push(...ufoArrive(n));
+    }
+    if((counts.n||0)>=2){ cats(3+(counts.n||0)); toast("🐈 猫たちが集まってきた","#e39b4a"); vips.push("近所の猫たち"); }
+    else if(rank<=40) cats(1);
+
+    if(rank<=10) fireworksLoop(rank<=3?2.2:1.2);
+    if(rank<=20) searchlights();
+    if(rank<=3) goldRing();
+    if(rank<=5) confetti();
+    if(rank>=80&&place!=="u") rain();
+    if(rank>=82) crows(rank>=95?5:3);
+    if(rank>=88) tumbleweed();
+    if(rank===100) later(1.5,()=>toast("今日も誰も来なかった……","#555"));
+    return vips;
+  }
+
+  /* ---- カメラ操作 ---- */
+  let theta=0.32, phi=0.4, camR=32, dragging=false, lx=0, ly=0, idle=0;
+  const target=new THREE.Vector3(0,2.2,3);
+  canvas.addEventListener("pointerdown",e=>{ dragging=true; lx=e.clientX; ly=e.clientY; idle=0; canvas.setPointerCapture(e.pointerId); });
+  canvas.addEventListener("pointermove",e=>{ if(!dragging) return; theta-=(e.clientX-lx)*0.006; phi=Math.max(0.1,Math.min(1.25,phi+(e.clientY-ly)*0.004)); lx=e.clientX; ly=e.clientY; });
+  const up=()=>{ dragging=false; idle=0; };
+  canvas.addEventListener("pointerup",up); canvas.addEventListener("pointercancel",up);
+  canvas.addEventListener("wheel",e=>{ e.preventDefault(); camR=Math.max(16,Math.min(70,camR+e.deltaY*0.03)); },{passive:false});
+  let baseR=32;
+  function resize(){
+    const w=stage.clientWidth, h=stage.clientHeight;
+    renderer.setSize(w,h,false); camera.aspect=w/Math.max(1,h); camera.updateProjectionMatrix();
+    const nb=camera.aspect<0.8?50:camera.aspect<1.2?40:32;
+    camR=camR-baseR+nb; baseR=nb;
+  }
+  window.addEventListener("resize",resize);
+  if(window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+  resize();
+
+  /* ---- ループ ---- */
+  const clock=new THREE.Clock();
+  function loop(){
+    requestAnimationFrame(loop);
+    const dt=Math.min(0.05,clock.getDelta()); T+=dt;
+    for(let i=timers.length-1;i>=0;i--){ if(timers[i]&&timers[i].at<=T){ const f=timers[i].fn; timers.splice(i,1); f(); } }
+    for(let i=movers.length-1;i>=0;i--){
+      const m=movers[i]; if(!m) continue;
+      const tg=m.path[m.i]; const o=m.obj;
+      const dx=tg.x-o.position.x, dz=tg.z-o.position.z; const dist=Math.hypot(dx,dz);
+      if(dist<0.06){ m.i++; if(m.i>=m.path.length){ movers.splice(i,1); o.position.y=m.base; if(m.onEnd) m.onEnd(); } continue; }
+      const st=Math.min(dist,m.speed*dt);
+      o.position.x+=dx/dist*st; o.position.z+=dz/dist*st;
+      o.rotation.y=Math.atan2(dx,dz);
+      o.position.y=m.base+Math.abs(Math.sin(T*9+m.ph))*0.07;
+    }
+    for(let i=anims.length-1;i>=0;i--){ const f=anims[i]; if(f&&f(dt,T)===false){ const j=anims.indexOf(f); if(j>=0) anims.splice(j,1); } }
+    if(flicker) signMat.color.setScalar(Math.random()<0.08?0.25:1);
+    if(!dragging){ idle+=dt; if(idle>2.5&&!reduceMotion) theta+=dt*0.07; }
+    camera.position.set(target.x+camR*Math.sin(theta)*Math.cos(phi),target.y+camR*Math.sin(phi),target.z+camR*Math.cos(theta)*Math.cos(phi));
+    camera.lookAt(target);
+    renderer.render(scene,camera);
+  }
+  prepare();
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(()=>{ if(!running&&$("#banner").hidden) drawSign("準備中","まもなく開店します","#f1cf6a"); });
+  loop();
+  return {prepare,run};
+}
+</script>
+</body>
+</html>
