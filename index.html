@@ -239,7 +239,74 @@ summary{cursor:pointer;color:var(--chalk-yellow);font-size:15px}
   #slots .nm{font-size:11.5px;line-height:1.2}
   .blk p,.blk li{font-size:11px}
 }
+/* ---------- 全国ランキング ---------- */
+#rankBtn{position:absolute;right:12px;top:12px;z-index:3;font:700 13px var(--jp);color:var(--espresso);background:linear-gradient(#f1cf6a,#d9a441);
+  border:0;border-radius:16px;padding:6px 14px;cursor:pointer;box-shadow:0 2px 0 #8a5d17,0 4px 10px rgba(0,0,0,.3)}
+#rankBtn.new{animation:rkpulse 1.4s ease-in-out infinite}
+@keyframes rkpulse{50%{transform:scale(1.07);box-shadow:0 2px 0 #8a5d17,0 0 0 6px rgba(241,207,106,.35)}}
+#rankBtn:focus-visible{outline:3px solid var(--chalk-mint);outline-offset:2px}
+#stage.cine #rankBtn{display:none}
+@media (max-width:820px){ #rankBtn{top:auto;bottom:10px;right:10px;font-size:12px;padding:5px 12px} }
+#rankModal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+#rankModal[hidden]{display:none}
+.rm-back{position:absolute;inset:0;background:rgba(10,8,6,.62);backdrop-filter:blur(2px)}
+.rm-box{position:relative;width:min(460px,100%);max-height:calc(100dvh - 32px);display:flex;flex-direction:column;
+  background:radial-gradient(120% 60% at 20% 0%,rgba(255,255,255,.06),transparent 60%),var(--board);
+  border:8px solid var(--frame);border-radius:6px;padding:14px 16px 12px;font-family:var(--chalkfont);color:var(--chalk);box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.rm-box header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.rm-box h2{margin:0;font-family:var(--display);font-weight:400;font-size:20px}
+.rm-box h2 small{font-family:var(--chalkfont);font-size:13px;color:var(--chalk-yellow);margin-left:6px}
+.rm-x{background:none;border:0;color:var(--chalk);font-size:26px;line-height:1;cursor:pointer;padding:0 4px}
+.rm-x:focus-visible,#rmSend:focus-visible,#rmName:focus-visible{outline:3px solid var(--chalk-mint);outline-offset:2px}
+#rmForm{border:1.5px dashed rgba(236,232,221,.3);border-radius:6px;padding:8px 10px;margin-bottom:10px}
+#rmForm[hidden]{display:none}
+.rm-mine{margin:0 0 6px;font-size:13px;color:var(--chalk-yellow)}
+.rm-mine b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--chalk);margin:0 2px}
+.rm-row{display:flex;gap:8px}
+#rmName{flex:1;min-width:0;font:16px var(--jp);padding:7px 10px;border-radius:6px;border:1.5px solid rgba(236,232,221,.4);background:rgba(0,0,0,.25);color:var(--chalk)}
+#rmSend{font:700 15px var(--jp);color:var(--espresso);background:linear-gradient(#e8b957,#c98f2e);border:0;border-radius:6px;padding:0 16px;cursor:pointer}
+#rmSend:disabled{filter:grayscale(.6);cursor:wait}
+.rm-msg{margin:6px 0 0;font-size:13px;min-height:1em;color:var(--chalk-mint)}
+.rm-msg.err{color:var(--chalk-pink)}
+#rmList{list-style:none;margin:0;padding:0;overflow-y:auto;flex:1 1 auto;min-height:0;border-top:2px dashed rgba(236,232,221,.25)}
+/* 30位まで1画面に収まる1行表示（PCは15位ずつ2列） */
+#rmList li{display:grid;grid-template-columns:1.8em minmax(0,1fr) auto auto;column-gap:6px;align-items:baseline;padding:1px 2px;border-bottom:1px dashed rgba(236,232,221,.14);line-height:1.3}
+#rmList .no{font-family:var(--display);font-size:13px;color:var(--chalk-dim);text-align:right}
+#rmList li:nth-child(1) .no{color:#ffd35c}#rmList li:nth-child(2) .no{color:#d8dde3}#rmList li:nth-child(3) .no{color:#e0a36a}
+#rmList .nm{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#rmList .pt{font-family:var(--display);font-size:13px;color:var(--chalk-mint);white-space:nowrap;text-align:right}
+#rmList .tt{font-size:10.5px;color:var(--chalk-dim);white-space:nowrap;min-width:3.4em}
+#rmList .tn{display:none}
+#rmList li.me{background:rgba(241,207,106,.14)}
+#rmList li.me .nm{color:var(--chalk-yellow)}
+#rmList li.empty{display:block;text-align:center;color:var(--chalk-dim);font-size:13px;padding:14px 4px}
+.rm-note{margin:6px 0 0;font-size:12px;color:var(--chalk-dim);text-align:center}
+@media (min-width:720px),(min-width:560px) and (max-height:500px){
+  .rm-box{width:min(760px,100%)}
+  #rmList{display:grid;grid-template-rows:repeat(15,auto);grid-auto-flow:column;grid-auto-columns:1fr;column-gap:22px;align-content:start}
+  #rmList li{padding:3px 2px}
+  #rmList .nm{font-size:14.5px}
+  #rmList .pt{font-size:14px}
+  #rmList .tt{min-width:0}
+  #rmList .tn{display:inline;margin-left:3px}
+}
+@media (max-height:700px){
+  .rm-box{padding:10px 12px 8px}
+  .rm-box header{margin-bottom:4px}
+  .rm-box h2{font-size:17px}
+  #rmList li{padding:0 2px;line-height:1.2}
+  #rmList .nm{font-size:12.5px}
+  .rm-note{margin-top:3px}
+}
+@media (max-height:660px){
+  #rmList li{line-height:1.1}
+  #rmList .nm,#rmList .no,#rmList .pt{font-size:12px}
+  #rmList .tt{font-size:10px}
+  .rm-box{max-height:calc(100dvh - 16px)}
+  #rankModal{padding:8px}
+}
 @media (prefers-reduced-motion:reduce){
+  #rankBtn.new{animation:none}
   #banner.pop,.toast,#slots li.set .nm,#cap.swap{animation:none}
   #stage .lb{transition:none}
 }
@@ -266,12 +333,30 @@ summary{cursor:pointer;color:var(--chalk-yellow);font-size:15px}
     <div id="cap" aria-live="polite"></div>
     <div id="dots" aria-hidden="true"></div>
     <button id="skip" type="button">スキップ ▶▶</button>
+    <button id="rankBtn" type="button" aria-haspopup="dialog">🏆 全国ランキング</button>
     <div id="toasts"></div>
     <div id="hint">ドラッグで視点を回せます（ホイールで拡大）</div>
     <div id="err">3D表示を読み込めませんでした。ネットに接続した状態でページを再読み込みしてください。</div>
   </section>
 </div>
+<div id="rankModal" hidden>
+  <div class="rm-back" data-close></div>
+  <section class="rm-box" role="dialog" aria-modal="true" aria-labelledby="rmTitle">
+    <header><h2 id="rmTitle">🏆 全国ランキング<small>TOP30</small></h2><button type="button" class="rm-x" data-close aria-label="閉じる">×</button></header>
+    <form id="rmForm" hidden>
+      <p class="rm-mine"></p>
+      <div class="rm-row"><input id="rmName" maxlength="12" placeholder="名前（12文字まで）" autocomplete="nickname" aria-label="ランキングに載せる名前" required><button type="submit" id="rmSend">登録</button></div>
+      <p class="rm-msg" aria-live="polite"></p>
+    </form>
+    <ol id="rmList" aria-live="polite"></ol>
+    <p class="rm-note"></p>
+  </section>
+</div>
 
+<script>
+/* 全国ランキングのサーバー（Cloudflare Worker）のURL。ranking-worker/README.md の手順で作成したURLを入れる */
+window.CAFE_RANKING_API = window.CAFE_RANKING_API || "https://cafe-ranking.fukasyun0509.workers.dev";
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 "use strict";
@@ -451,6 +536,84 @@ function toast(text,color){
   setTimeout(()=>d.remove(),4300);
 }
 
+/* ---------------- 全国ランキング ---------------- */
+const RANKING_API=String(window.CAFE_RANKING_API||"").trim().replace(/\/+$/,"");
+const rankBtn=$("#rankBtn"), rankModal=$("#rankModal"), rmForm=$("#rmForm"), rmName=$("#rmName"), rmSend=$("#rmSend"), rmList=$("#rmList");
+let pendingScore=null, lastFocus=null;
+const NAME_KEY="cafe-roulette-name";
+const savedName=()=>{ try{ return localStorage.getItem(NAME_KEY)||""; }catch(e){ return ""; } };
+function setPendingScore(ev){
+  pendingScore={picks:ev.picks.map(p=>p.idx),total:ev.total,rank:ev.rank};
+  if(RANKING_API){ rankBtn.textContent="🏆 ランキングに登録"; rankBtn.classList.add("new"); }
+}
+async function rankFetch(method,body){
+  const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),10000);
+  try{
+    const res=await fetch(RANKING_API+"/scores",{method,signal:ctl.signal,headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw Object.assign(new Error(data.error||("http_"+res.status)),{code:data.error||res.status});
+    return data;
+  } finally { clearTimeout(tm); }
+}
+function renderTop(top,me){
+  rmList.innerHTML="";
+  if(!top.length){ const li=document.createElement("li"); li.className="empty"; li.textContent="まだ誰も登録していません。最初の1人になろう！"; rmList.appendChild(li); return; }
+  top.slice(0,30).forEach((r,i)=>{
+    const li=document.createElement("li"); if(me&&r.name===me) li.classList.add("me");
+    const no=document.createElement("span"); no.className="no"; no.textContent=i+1;
+    const nm=document.createElement("span"); nm.className="nm"; nm.textContent=String(r.name);
+    const pt=document.createElement("span"); pt.className="pt"; pt.textContent=`${Number(r.score)} pt`;
+    const tt=document.createElement("span"); tt.className="tt"; const rk=Number(r.rank);
+    if(rk>=1&&rk<=100){ tt.textContent=`格付${rk}位`; tt.title=RANKS[rk-1]; const tn=document.createElement("span"); tn.className="tn"; tn.textContent=RANKS[rk-1]; tt.appendChild(tn); }
+    li.append(no,nm,pt,tt); rmList.appendChild(li);
+  });
+}
+function rankMsg(text,err){ const m=rmForm.querySelector(".rm-msg"); m.textContent=text||""; m.classList.toggle("err",!!err); }
+async function loadTop(){
+  const note=rankModal.querySelector(".rm-note");
+  if(!RANKING_API){ rmList.innerHTML=""; note.textContent="全国ランキングは準備中です。"; return; }
+  note.textContent="読み込み中…";
+  try{ const d=await rankFetch("GET"); renderTop(Array.isArray(d.top)?d.top:[],savedName()); note.textContent="同じ名前は最高点だけが残ります。"; }
+  catch(e){ note.textContent="ランキングを読み込めませんでした。通信状態を確認してください。"; }
+}
+function openRanking(){
+  lastFocus=document.activeElement;
+  rankModal.hidden=false;
+  const canSend=!!(pendingScore&&RANKING_API);
+  rmForm.hidden=!canSend; rankMsg("");
+  if(canSend){
+    rmForm.querySelector(".rm-mine").innerHTML="";
+    const p=rmForm.querySelector(".rm-mine");
+    p.append("今回の記録 ",Object.assign(document.createElement("b"),{textContent:`${pendingScore.total} pt`}),`（第${pendingScore.rank}位 ${RANKS[pendingScore.rank-1]}）`);
+    rmName.value=savedName(); rmSend.disabled=false;
+    setTimeout(()=>rmName.focus(),30);
+  } else setTimeout(()=>rankModal.querySelector(".rm-x").focus(),30);
+  loadTop();
+}
+function closeRanking(){ rankModal.hidden=true; if(lastFocus&&lastFocus.focus) lastFocus.focus(); }
+rankBtn.addEventListener("click",openRanking);
+rankModal.addEventListener("click",e=>{ if(e.target.closest("[data-close]")) closeRanking(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!rankModal.hidden) closeRanking(); });
+rmForm.addEventListener("submit",async e=>{
+  e.preventDefault();
+  if(!pendingScore) return;
+  const name=rmName.value.trim();
+  if(!name){ rankMsg("名前を入れてください。",true); rmName.focus(); return; }
+  rmSend.disabled=true; rankMsg("登録中…");
+  try{
+    const d=await rankFetch("POST",{name,picks:pendingScore.picks});
+    try{ localStorage.setItem(NAME_KEY,d.name||name); }catch(err){}
+    pendingScore=null; rankBtn.textContent="🏆 全国ランキング"; rankBtn.classList.remove("new");
+    rmForm.hidden=true;
+    renderTop(Array.isArray(d.top)?d.top:[],d.name||name);
+    const note=rankModal.querySelector(".rm-note");
+    note.textContent=d.best>d.score?`登録しました。「${d.name}」さんの最高点は ${d.best} pt、全国 ${d.position} 位です。`:`登録しました！「${d.name}」さんは全国 ${d.position} 位です。`;
+  }catch(err){
+    rmSend.disabled=false;
+    rankMsg(err.code==="too_fast"?"少し待ってからもう一度どうぞ。":err.code==="bad_name"?"その名前は使えません。":"登録できませんでした。通信状態を確認してください。",true);
+  }
+});
+
 let running=false;
 $("#go").addEventListener("click",openShop);
 
@@ -497,6 +660,7 @@ async function openShop(){
   if(!world) showBanner(ev);
   showResult(ev,vips,st,newBest);
   renderRankList(ev.rank);
+  setPendingScore(ev);
 
   btn.disabled=false; btn.textContent="もう一度開店する";
   running=false;
