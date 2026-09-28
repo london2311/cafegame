@@ -147,12 +147,97 @@ summary{cursor:pointer;color:var(--chalk-yellow);font-size:15px}
   #cap b{font-size:15px}
   #cap .cp{font-size:16px}
   #stage.cine #toasts{display:none}
-  #app{grid-template-columns:1fr;grid-template-rows:48vh 1fr;grid-template-rows:48dvh 1fr}
+  #app{grid-template-columns:1fr;grid-template-rows:40vh 1fr;grid-template-rows:40dvh 1fr}
   #stage{order:0}
   #panel{order:1;border-width:8px;padding:16px 16px 26px}
   #panel h1{font-size:24px}
   #banner{top:8px}
   #hint{display:none}
+}
+.howto{display:none}
+.blk h3 .s,.blk .vs{display:none}
+/* スマホ・横向きでもスクロールなしで全項目が見えるコンパクト表示 */
+@media (max-width:820px),(max-height:1200px){
+  #panel{padding:8px 12px 10px;display:flex;flex-wrap:wrap;align-items:baseline;align-content:flex-start;column-gap:12px}
+  #panel>*{flex:0 0 100%;min-width:0}
+  #panel h1{flex:0 0 auto;order:1;font-size:19px;margin:0 0 5px;white-space:nowrap}
+  #panel h1 small{display:none}
+  .lead{display:none}
+  #panel>.howto{flex:0 0 auto;order:2;display:block;margin:0;font-family:var(--chalkfont)}
+  #panel>details.ranks{flex:0 0 auto;order:3;margin:0}
+  #panel>details[open]{flex-basis:100%}
+  #slots{order:4}
+  #go{order:5}
+  #result{order:6}
+  .rk100{display:none}
+  .howto summary{font-size:12px}
+  .howto p{font-size:12px;line-height:1.6;color:var(--chalk-dim);margin:6px 0 0}
+  #slots{display:grid;grid-template-columns:1fr 1fr;gap:5px;border-top:0;margin:0 0 7px}
+  #slots li{grid-template-columns:20px 1fr auto;gap:4px;padding:3px 6px;min-height:0;border:1.5px dashed rgba(236,232,221,.25);border-radius:6px}
+  #slots .ic{font-size:15px}
+  #slots .cat{font-size:10px;line-height:1.2}
+  #slots .nm{font-size:12.5px;line-height:1.25}
+  #slots .tg{font-size:9px;padding:0 4px;margin-left:3px;vertical-align:1px;border-width:1px}
+  #slots .pt{font-size:14px;min-width:0}
+  #go{font-size:17px;padding:7px 10px;box-shadow:0 3px 0 #8a5d17,0 5px 12px rgba(0,0,0,.35)}
+  #result{margin-top:6px;display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline}
+  #result>*{grid-column:1/-1}
+  #result>.total{grid-column:1;border:0;padding:0;gap:6px;justify-content:flex-start}
+  #result>.sub{grid-column:2;text-align:right;margin:0}
+  .total b{font-size:21px}
+  .total span{font-size:12px}
+  .sub{font-size:11px}
+  .blk .vs{display:inline}
+  .blk .vl{display:none}
+  .blk{margin:3px 0;display:flex;gap:6px;align-items:baseline}
+  .blk h3{font-size:11px;white-space:nowrap;margin:0;flex:none}
+  .blk h3 .l{display:none}
+  .blk h3 .s{display:inline}
+  .blk p,.blk li{font-size:11.5px;line-height:1.35}
+  .blk ul{display:flex;flex-wrap:wrap;gap:1px 10px}
+  .blk li{padding:0;gap:4px;justify-content:flex-start}
+  .record{font-size:11px;margin-top:2px;color:var(--chalk-dim)}
+  summary{font-size:12px}
+}
+@media (min-width:821px) and (min-height:700px){
+  #panel>.lead{display:block;order:4;font-size:13px;line-height:1.7;margin:2px 0 10px}
+  #panel>.howto{display:none}
+}
+@media (max-width:820px) and (min-height:800px){
+  #app{grid-template-rows:44vh 1fr;grid-template-rows:44dvh 1fr}
+}
+@media (max-width:820px) and (max-height:780px){
+  #app{grid-template-rows:34vh 1fr;grid-template-rows:34dvh 1fr}
+}
+@media (max-width:820px) and (max-height:700px){
+  #app{grid-template-rows:30vh 1fr;grid-template-rows:30dvh 1fr}
+}
+@media (max-width:820px) and (max-height:660px){
+  #app{grid-template-rows:27vh 1fr;grid-template-rows:27dvh 1fr}
+  #slots .nm{font-size:12px;line-height:1.2}
+  .blk p,.blk li{font-size:11px}
+}
+/* 横向きのスマホ：左にパネル、右に3D。項目は3列 */
+@media (max-height:560px){
+  #app{grid-template-columns:minmax(300px,56%) 1fr;grid-template-rows:none}
+  #stage{order:1}
+  #panel{order:0}
+  #banner{top:6px}
+  #banner .rk b{font-size:44px}
+  #banner h2{font-size:18px;margin-top:4px;padding:4px 12px 6px}
+  #panel{border-width:6px}
+  #slots{grid-template-columns:1fr 1fr 1fr}
+  #slots li{grid-template-columns:1fr auto}
+  #slots .ic{display:none}
+  #slots .nm{font-size:12px}
+  #slots .cat{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #panel h1{font-size:16px;margin-bottom:4px}
+}
+@media (max-height:560px) and (max-width:760px){
+  #app{grid-template-columns:62% 1fr}
+  #slots{grid-template-columns:1fr 1fr}
+  #slots .nm{font-size:11.5px;line-height:1.2}
+  .blk p,.blk li{font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){
   #banner.pop,.toast,#slots li.set .nm,#cap.swap{animation:none}
@@ -165,11 +250,12 @@ summary{cursor:pointer;color:var(--chalk-yellow);font-size:15px}
   <aside id="panel">
     <h1>カフェ・ルーレット<small>今日のお店は、どこまで行ける？</small></h1>
     <p class="lead">コーヒー・サイドメニュー・サービス・清潔さ・立地・内装が1秒ずつ決まります。各100種類。合計点と組み合わせで、宇宙一から客ゼロまで100段階の格付けが決まります。開店後は、街並み・外観・店内・接客・一杯・ひと皿を3秒ずつ映し、最後にお店の全景を見せます。</p>
+    <details class="howto"><summary>遊び方</summary><p>コーヒー・サイドメニュー・サービス・清潔さ・立地・内装が1秒ずつ決まります。各100種類。合計点と組み合わせで、宇宙一から客ゼロまで100段階の格付けが決まります。開店後は、街並み・外観・店内・接客・一杯・ひと皿を3秒ずつ映し、最後にお店の全景を見せます。</p></details>
     <ol id="slots"></ol>
     <button id="go" type="button">開店する</button>
     <section id="result" hidden aria-live="polite"></section>
-    <details>
-      <summary>格付け一覧（100段階）</summary>
+    <details class="ranks">
+      <summary>格付け一覧<span class="rk100">（100段階）</span></summary>
       <ol id="ranklist"></ol>
     </details>
   </aside>
@@ -433,12 +519,16 @@ function showResult(ev,vips,st,newBest){
   const g=guestsPerDay(ev.rank);
   const guests=g===0?"0人。今日も誰も来ませんでした。":`約${g.toLocaleString()}人`;
   const vipText=vips.length?vips.join("、"):"特別なお客様はなし";
+  // スマホ用の短い表示（種類ごとの人数）
+  const VG=[["著名人",/スター|歌姫|モデル|俳優/],["首脳",/総理|大統領/],["王族",/王|女王/],["宇宙人",/星人|宇宙人/],["猫",/猫/]];
+  const vc={}; vips.forEach(n=>{ const g=VG.find(([,re])=>re.test(n)); const k=g?g[0]:n; vc[k]=(vc[k]||0)+1; });
+  const vipShort=vips.length?Object.keys(vc).map(k=>vc[k]>1?`${k}${vc[k]}`:k).join("・"):"なし";
   r.innerHTML=`
     <div class="total"><span>合計</span><b>${ev.total} pt</b></div>
     <p class="sub">基本 ${ev.base} pt ／ 組み合わせ ${ev.bonus>=0?"+":""}${ev.bonus} pt</p>
-    <div class="blk"><h3>組み合わせボーナス</h3>${combos}</div>
-    <div class="blk"><h3>1日の来客数</h3><p>${guests}</p></div>
-    <div class="blk"><h3>来店した特別なお客様</h3><p>${vipText}</p></div>
+    <div class="blk"><h3><span class="l">組み合わせボーナス</span><span class="s">ボーナス</span></h3>${combos}</div>
+    <div class="blk"><h3><span class="l">1日の来客数</span><span class="s">来客数</span></h3><p>${guests}</p></div>
+    <div class="blk"><h3><span class="l">来店した特別なお客様</span><span class="s">特別客</span></h3><p><span class="vl">${vipText}</span><span class="vs">${vipShort}</span></p></div>
     <p class="record">${newBest?"最高記録を更新しました。":""}最高記録 ${st.best}位 ／ 開店 ${st.plays}回</p>`;
   r.hidden=false;
 }
